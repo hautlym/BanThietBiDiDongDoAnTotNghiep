@@ -1,0 +1,134 @@
+﻿@model BanThietBiDiDongDATN.Application.Catalog.System.Dtos.UserUpdateRequest
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Sửa thông tin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function displaySelectedImage(event, elementId) {
+        const selectedImage = document.getElementById(elementId);
+        const fileInput = event.target;
+
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                selectedImage.src = e.target.result;
+            };
+
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+    }
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <h4 class="mt-4">@ViewData["Title"]</h4>
+                <ol class="breadcrumb bg-white">
+                    <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a asp-action="Index">Quản lí người dùng</a> </li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-valide d-flex flex-wrap" asp-action="Edit" enctype="multipart/form-data" method="post">
+                        <!--Avatar-->
+                        <div class="col-lg-3 col-md-4 col-12">
+                            <div class="d-flex justify-content-center mb-2">
+                                @if (String.IsNullOrEmpty(Model.Img))
+                                {
+                                    <img id="selectedAvatar" src="https://mdbootstrap.com/img/Photos/Others/placeholder-avatar.jpg"
+                                    class="rounded" style="width: 150px; height: 150px; object-fit: cover;" alt="example placeholder" />
+                                }
+                                else
+                                {
+                                    <img id="selectedAvatar" src="@Configuration["BaseAddress"]/user-content/user/@Model.Img"
+                                         class="rounded" style="width: 150px; height: 150px; object-fit: cover;" alt="example placeholder" />
+                                }
+                            </div>
+                            <div class="d-flex justify-content-center">
+                                <div>
+                                    <label class=" btn btn-info btn-rounded form-label text-white m-1" for="customFile2"><i class="fa-regular fa-image" style="color: #ffffff;"></i>  Chọn ảnh</label>
+                                    <input type="file" asp-for="Avatar" class="form-control d-none" id="customFile2" onchange="displaySelectedImage(event, 'selectedAvatar')" />
+                                    <input type="hidden" asp-for="Id" value="@Model.Id" />
+                                    <input type="hidden" asp-for="Email" value="@Model.Email" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-validation col-lg-9 col-md-8 col-12">
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-website">
+                                    Họ và tên<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6 d-flex justify-content-between">
+                                    <div>
+                                        <input type="text" asp-for="FirstName" class="form-control " id="val-website" placeholder="Nhập họ..." aria-required="true" aria-describedby="val-website-error">
+                                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                                    </div>
+                                    <div>
+                                        <input type="text" asp-for="LastName" class="form-control " id="val-website" placeholder="Nhập tên ..." aria-required="true" aria-describedby="val-website-error">
+                                        <span asp-validation-for="LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-website">
+                                    Ngày sinh <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6">
+                                    <input type="date" class="form-control" asp-for="Dob">
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-website">
+                                    Địa chỉ <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6">
+                                    <input type="text" asp-for="Address" class="form-control" id="val-website" placeholder="Nhập địa chỉ..." aria-required="true" aria-describedby="val-website-error">
+                                    <span asp-validation-for="Address" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-website">
+                                    Giới tính <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6 d-flex align-items-center">
+                                    <label class=" mx-3">
+                                        <input type="radio" asp-for="Gender" value="true" checked> Nam
+                                    </label>
+                                    <label>
+                                        <input type="radio" asp-for="Gender" value="false"> Nữ
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-phoneus">
+                                    Số điện thoại <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-6">
+                                    <input type="text" asp-for="PhoneNumber" class="form-control" id="val-phoneus" placeholder="Nhập số điện thoại.." aria-required="true" aria-describedby="val-phoneus-error">
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-lg-8 ml-auto">
+                                    <a class="btn btn-secondary " asp-action="Index"> Hủy </a>
+                                    <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

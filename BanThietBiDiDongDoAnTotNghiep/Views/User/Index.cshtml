@@ -1,0 +1,318 @@
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Commom;
+@using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
+@using BanThietBiDiDongDATN.Data.entities;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model PageResult<UserViewModels>
+
+@{
+    ViewData["Title"] = "Quản lí người dùng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]', "Thành công", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
+    @if (TempData["failed"] != null)
+    {
+        <script type="text/javascript">
+            toastr.error('@TempData["failed"]', "Thất bại", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
+}
+
+<style>
+    tr:first-child, th:first-child {
+        width: 5%
+    }
+
+    tr:nth-last-child(2), td:nth-last-child(2) {
+        width: 13%
+    }
+
+    tr:nth-child(2), td:nth-child(2) {
+        width: 35%
+    }
+
+    tr:last-child, th:last-child {
+        width: 13%
+    }
+
+    .media-body {
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+    }
+</style>
+<div class="container-fluid">
+    <div class="col-lg-12">
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <h4 class="mt-4">@ViewData["Title"]</h4>
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title d-flex justify-content-between flex-wrap">
+                    <div>
+                        <a asp-action="Create" type="button" class="btn  btn-info text-wrap ">
+                            <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
+                            Thêm người dùng </span>
+                        </a>
+                        <button type="button" class="btn btn-primary">
+                            <span>
+                                <i class="fa-solid fa-file-export" style="color: #ffffff;"></i>
+                                Xuất file
+                            </span>
+                        </button>
+                    </div>
+
+                    
+                    <form asp-action="Index" ajax- class="col-lg-3 col-md-6 col-12 p-0">
+
+                        <div class="input-group ">
+                            <input type="text" value="@ViewBag.Keyword" name="keyword" class="form-control rounded " placeholder="Nhập từ khóa cần tìm ....">
+                            <div class="input-group-append">
+                                <button style="z-index:4;" class="btn rounded-end btn-outline-primary " type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped verticle-middle">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Người dùng</th>
+                                <th>Vai trò</th>
+                                <th>Đăng nhập cuối</th>
+                                <th>Xác thực email</th>
+                                @* <th>Trạng thái</th> *@
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (Model.TotalRecords > 0)
+                            {
+                                var i = ((Model.PageIndex - 1) * Model.PageSize) + 1;
+                                foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <th>
+                                            @i
+                                            @{
+                                                i++;
+                                            }
+                                        </th>
+                                        <td>
+                                            <div class="bootstrap-media">
+                                                <div class="media">
+                                                    @if (!String.IsNullOrEmpty(item.Avatar))
+                                                    {
+                                                        <img class="mr-3 " style="border-radius:50%;" height="50" width="50" src="@Configuration["BaseAddress"]/user-content/user/@item.Avatar">
+                                                    }
+                                                    else
+                                                    {
+                                                        <img class="mr-3 " style="border-radius:50%;" height="50" width="50" src="/images/No-Image.jpg">
+                                                    }
+                                                    <div class="media-body">
+                                                        <h5 class="mt-0"><a asp-action="Detail" asp-route-UserId="@item.Id">@item.FirstName @item.LastName</a> </h5>
+                                                        @item.Email
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (item.Roles.Count <= 0)
+                                            {
+                                                <span class="badge badge-danger px-2">Chưa phân quyền</span>
+                                            }
+                                            @foreach (var role in item.Roles)
+                                            {
+                                                @role
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.LastSignIn != null)
+                                            {
+                                                TimeSpan timeSpan = item.LastSignIn.Value.TimeOfDay;
+                                                @if (timeSpan.Days > 0)
+                                                {
+                                                    <span>@timeSpan.Days ngày trước </span>
+                                                }
+                                                else if (timeSpan.Hours > 0)
+                                                {
+                                                    <span>@timeSpan.Days giờ trước </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@timeSpan.Minutes phút trước </span>
+                                                }
+                                            }
+
+                                        </td>
+                                        <td>
+                                            @if (item.EmailVerify == true)
+                                            {
+                                                <span class="badge badge-success px-2">Đã xác thực</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger px-2">Chưa xác thực</span>
+                                            }
+                                        </td>
+                                        <td class="color-primary">
+                                            <span class="d-flex">
+                                                <a asp-action="Edit" asp-route-Id="@item.Id" asp- data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+                                                    <i class="fa fa-pencil color-muted m-r-5 mx-2" style="height:16px;width:16px;"></i>
+                                                </a>
+                                                @*   Xóa *@
+                                                @using (Html.BeginForm("Delete", "User", FormMethod.Post))
+                                                {
+                                                    <div class="bootstrap-modal">
+                                                        <!-- Button trigger modal -->
+                                                        <div data-toggle="modal" data-target="#basicModal@{
+                                                            @item.Id
+                                                        }">
+                                                            <a href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete">
+                                                                <i class="fa fa-close color-danger fa-xl" style="height:16px;width:16px;"></i>
+                                                            </a>
+                                                        </div>
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="basicModal@{
+                                                                    @item.Id
+}">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Xóa người dùng</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal">
+                                                                            <span>&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">Bạn có muốn xóa người dùng <strong>@item.FirstName @item.LastName</strong> </div>
+                                                                    <input type="hidden" name="id" value="@item.Id">
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                                                        <button type="submit" class="btn btn-danger">Xóa người dùng</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>Varying modal content
+                                                        </div>
+                                                    </div>
+                                                }
+                                                @using (Html.BeginForm("RoleAssign", "User", FormMethod.Post))
+                                                {
+                                                    <div class="bootstrap-modal">
+                                                        <!-- Button trigger modal -->
+                                                        <div data-toggle="modal" data-target="#RoleModal@{
+                                                            @item.Id
+                                                        }">
+                                                            <a href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Role">
+                                                                <i class="fa-solid fa-sitemap m-r-5 mx-2" style="height:16px;width:16px;"></i>
+                                                            </a>
+                                                        </div>
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="RoleModal@{
+                                                                        @item.Id
+}">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Gán quyền</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal">
+                                                                            <span>&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <label for="message-text" class="col-form-label">Chọn quyền:</label>
+                                                                        <input type="hidden" name="userId" value="@item.Id">
+                                                                        <select name="roleId" asp-items="@ViewBag.Roles" class="form-control">
+                                                                            <option value="0">-- Gán quyền --</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <input type="hidden" name="id" value="@item.Id">
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                                                        <button type="submit" class="btn btn-primary">Gán quyền</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6">Không có trường dữ liệu nào</td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    @{
+                        var startIndex = ((Model.PageIndex - 1) * Model.PageSize) + 1;
+                        var endIndex = startIndex + Model.Items.Count - 1;
+                    }
+                    <div>
+                        Từ <strong>@startIndex</strong>  - <strong>@endIndex</strong>   trên <strong>@Model.TotalRecords</strong>
+                    </div>
+                    @await Component.InvokeAsync("Pager", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

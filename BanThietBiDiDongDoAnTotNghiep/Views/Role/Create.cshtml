@@ -1,0 +1,49 @@
+﻿@using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
+@model CreateRoleRequest
+
+<div class="bootstrap-modal" style="display: inline-block">
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal" data-whatever="@@mdo">
+        <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
+        Thêm quyền
+    </button>
+    <style>
+        .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 14px;
+        }
+    </style>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+
+            <form asp-action="Create" data-ajax-method="POST" data-ajax="true" data-ajax-update="CreateRoleForm" data-ajax-complete="OnComplete">
+                @* <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm quyền</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="CreateRoleForm">
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Tên quyền:</label>
+                            <input asp-for="RoleName" type="text" class="form-control rounded my-1" id="recipient-name">
+                            <span asp-validation-for="RoleName" class="text-danger fs-5 mt-1"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Mô tả:</label>
+                            <textarea asp-for="Description" class="form-control rounded my-1" id="message-text"></textarea>
+                            <span asp-validation-for="Description" class="text-danger fs-5 mt-1"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Thêm quyền</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

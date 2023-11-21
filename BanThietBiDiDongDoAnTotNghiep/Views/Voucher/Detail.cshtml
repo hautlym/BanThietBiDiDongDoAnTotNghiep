@@ -1,0 +1,62 @@
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Vouchers.Dtos;
+@model VoucherViewModel
+<div class="bootstrap-modal" style="display: inline-block">
+    <div data-toggle="modal" data-target="#DetailsModal@{
+        @Model.Id
+        ;
+    }" data-whatever="@@mdo">
+        <h5>@Model.VoucherName</h5>
+    </div>
+
+    <div class="modal fade" id="DetailsModal@{
+                                @Model.Id
+;
+    }" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Thông tin voucher @Model.VoucherName</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td style="width:50%">Tên voucher: </td>
+                                    <td>@Model.VoucherName </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%">Mã voucher: </td>
+                                    <td>@Model.VoucherCode </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%">Số lượng voucher: </td>
+                                    <td>@Model.Quantity </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%">giảm giá voucher: </td>
+                                    <td>@Model.Discount </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%">Ngày bắt đầu: </td>
+                                    <td>@Model.BeginDate </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%">Ngày kết thúc: </td>
+                                    <td>@Model.ExpiredDate </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

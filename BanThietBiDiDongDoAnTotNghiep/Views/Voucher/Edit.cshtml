@@ -1,0 +1,79 @@
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Vouchers.Dtos;
+@model UpdateVoucherRequest
+<div class="bootstrap-modal" style="display: inline-block">
+    <div data-toggle="modal" data-target="#exampleModal@{
+        @Model.Id
+        ;
+    }" data-whatever="@@mdo">
+        <a href="#" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit">
+            <i class="fa fa-pencil color-muted m-r-5 mx-2" style="height:16px;width:16px;"></i>
+        </a>
+    </div>
+    <style>
+        .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 14px;
+        }
+    </style>
+    <div class="modal fade" id="exampleModal@{
+                @Model.Id
+;
+    }" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+
+            <form asp-action="Edit" data-ajax-method="POST" data-ajax="true" data-ajax-update="UpdateRoleForm" data-ajax-complete="OnComplete">
+                @* <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Sửa danh mục</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="UpdateRoleForm">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Tên danh mục:</label>
+                            <input asp-for="VoucherName" type="text" class="form-control rounded my-1" id="recipient-name">
+                            <span asp-validation-for="VoucherName" class="text-danger fs-5 mt-1"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Mã Voucher:</label>
+                            <input asp-for="VoucherCode" class="form-control rounded my-1" id="message-text"></input>
+                            <span asp-validation-for="VoucherCode" class="text-danger fs-5 mt-1"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Số lượng:</label>
+                            <input asp-for="Quantity" class="form-control rounded my-1" type="number" value="1"  id="message-text"></input>
+                            <span asp-validation-for="Quantity" class="text-danger fs-5 mt-1"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Giảm giá:</label>
+                            <input asp-for="Discount" class="form-control rounded my-1" type="number" value="1"  id="message-text"></input>
+                            <span asp-validation-for="Discount" class="text-danger fs-5 mt-1"></span>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-6">
+                                <div class="example">
+                                    <label for="recipient-name" class="col-form-label">Ngày bắt đầu:</label>
+                                    <input name="BeginDate" asp-for="BeginDate" class="form-control " type="date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="example">
+                                    <label for="recipient-name" class="col-form-label">Ngày kết thúc:</label>
+                                    <input type="date" asp-for="ExpiredDate" name="ExpiredDate" class="form-control ">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Sửa thông tin</button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
