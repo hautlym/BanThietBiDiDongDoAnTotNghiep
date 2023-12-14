@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using BanThietBiDiDongDATN.Data.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace BanThietBiDiDongDATN.Data.entities
 {
-    public class RatingProduct
+    public class RatingProduct:IDateTracking
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -14,6 +16,7 @@ namespace BanThietBiDiDongDATN.Data.entities
         [Column(TypeName = "nvarchar(250)")]
         public string Content { get; set; }
         public int productId { get; set; }
+        [JsonIgnore]
         public Product product { get; set; }
     }
 }

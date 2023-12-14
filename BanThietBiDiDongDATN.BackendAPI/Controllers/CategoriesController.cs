@@ -2,21 +2,27 @@
 using BanThietBiDiDongDATN.Application.Catalog.Categories;
 using BanThietBiDiDongDATN.Application.Catalog.Categories.Dtos;
 using BanThietBiDiDongDATN.Data.EF;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
+using System.Security.Claims;
 
 namespace BTL_KTPM.BackendAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly BanThietBiDiDongDATNDbContext _context;
         private readonly IManageCategory _manageCategory;
-
-        public CategoriesController(BanThietBiDiDongDATNDbContext context, IManageCategory manageCategory)
+        private readonly ILogger<CategoriesController> _logger;
+        //private IHttpContextAccessor httpContextAccessor;
+        public CategoriesController(BanThietBiDiDongDATNDbContext context, IManageCategory manageCategory, ILogger<CategoriesController> logger)
         {
             _context = context;
             _manageCategory = manageCategory;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -75,10 +81,14 @@ namespace BTL_KTPM.BackendAPI.Controllers
         [HttpDelete("{CategoryId}")]
         public async Task<IActionResult> Delete(int CategoryId)
         {
+            var category =await _manageCategory.GetById(CategoryId);
             var Result = await _manageCategory.Delete(CategoryId);
-            if (Result.IsSuccessed)
+            if (!Result.IsSuccessed)
                 return BadRequest(Result);
 
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var username = HttpContext.User.FindFirst(ClaimTypes.Surname)?.Value;
+            _logger.LogInformation($"{username}(id:{userId}) đã xóa danh mục: {category.ResultObj.CategoryName}(id:{category.ResultObj.Id})- {DateTime.Now}");
             return Ok(Result);
         }
     }

@@ -1,9 +1,113 @@
 ﻿@using BanThietBiDiDongDATN.Application.Catalog.Products.Dtos;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @model ProductViewModel
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Thông tin sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<div class="container-fluid">
+    <div class="col-lg-12">
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <h4 class="mt-4">@ViewData["Title"]</h4>
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index"> Quản lí sản phẩm</a></li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row flex-wrap mb-4 justify-content-center">
+                    @for (int i = 0; i < Model.ProductImg.Count; i++)
+                    {
+
+                        <div class="col-lg-3 col-md-3 col-12 ">
+                            <h5 class="d-flex justify-content-center">
+                                Ảnh
+                                @Model.ProductImg[i].SortOrder
+                            </h5>
+                            <div class="d-flex justify-content-center mb-2">
+                                @if (Model.ProductImg[i] == null)
+                                {
+                                    <img class="mr-3 " height="50" width="50" style="width: 150px; height: 150px; object-fit: cover;" src="/images/No-Image.jpg">
+                                }
+                                else
+                                {
+                                    <img id="selectedAvatar" src="@Configuration["BaseAddress"]/user-content/product/@Model.ProductImg[i].ImagePath"
+                                         class="rounded" style="width: 150px; height: 150px; object-fit: cover;" alt="example placeholder" />
+                                }
+                            </div>
+                        </div>
+                    }
+
+                </div>
+                <div class="row justify-content-center">
+                    <div class="table-responsive col-md-8">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Tên sản phẩm</th>
+                                    <td>@Model.ProductName</td>
+                                </tr>
+                                <tr>
+                                    <th>Giảm giá</th>
+                                    <td>@Model.Discount</td>
+                                </tr>
+                                <tr>
+                                    <th>Thời gian giảm giá</th>
+                                    <td>@Model.BeginDateDiscount - @Model.ExpiredDateDiscount</td>
+                                </tr>
+                                <tr>
+                                    <th>Danh mục</th>
+                                    <td>@Model.CategoryName</td>
+                                </tr>
+                                <tr>
+                                    <th>Thương hiệu</th>
+                                    <td>@Model.BrandName</td>
+                                </tr>
+                                <tr>
+                                    <th>Số lượng</th>
+                                    <td>@Model.Quantity</td>
+                                </tr>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <td>@if (Model.isActived == true)
+                                        {
+                                            <span>Hoạt động</span>
+                                        }    
+                                        else
+                                        {
+                                            <span>Không hoạt động</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Các tùy chọn </th>
+                                    <td>@foreach (var item in Model.Options)
+                                        {
+                                            <div>
+                                                Màu: @item.ColorOption - Dung Lượng: @item.SizeOption - Giá: @item.OptionPrice
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Mô tả</th>
+                                    <td>@Html.Raw(Model.ProductDescription)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 

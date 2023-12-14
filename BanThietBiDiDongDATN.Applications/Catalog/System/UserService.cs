@@ -78,6 +78,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.System
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Role,string.Join(";",roles)),
                 new Claim(ClaimTypes.Name, user.LastName),
+                new Claim(ClaimTypes.Surname, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.UserData,user.Avatar.ToString())
 

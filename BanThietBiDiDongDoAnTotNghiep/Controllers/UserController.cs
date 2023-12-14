@@ -198,6 +198,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
             var roleVm = new RolesAssignRequest() { 
             Id=Guid.Parse(userId),
             roles= new AppRoles(){Id=role.ResultObj.Id,Name= role.ResultObj.Name, Description=role.ResultObj.Description}
+            
             };
             var result = await _userApiClient.RoleAssign(Guid.Parse(userId), roleVm);
             if (result.IsSuccessed)

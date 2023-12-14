@@ -68,11 +68,9 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.VoucherApiClient
             var response = await client.GetAsync($"api/Voucher");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-            {
-                var myDeserializedObjList = (List<VoucherViewModel>)JsonConvert.DeserializeObject(body, typeof(List<VoucherViewModel>));
-                return new ApiSuccessResult<List<VoucherViewModel>>(myDeserializedObjList);
-            }
-            return new ApiErrorResult<List<VoucherViewModel>>("null"); ;
+                return JsonConvert.DeserializeObject<ApiSuccessResult<List<VoucherViewModel>>>(body);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<List<VoucherViewModel>>>(body);
         }
 
         public async Task<ApiResult<PageResult<VoucherViewModel>>> GetAlllPaging(GetVoucherRequest request)

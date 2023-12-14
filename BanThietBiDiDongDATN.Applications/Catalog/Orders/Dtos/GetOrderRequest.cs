@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BanThietBiDiDongDATNApplication.Catalog.Orders.Dtos
+namespace BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos
 {
-    public class GetOrderRequest: PagingRequestBase
+    public class GetOrderRequest : PagingRequestBase
     {
         public string? Keyword { get; set; }
     }

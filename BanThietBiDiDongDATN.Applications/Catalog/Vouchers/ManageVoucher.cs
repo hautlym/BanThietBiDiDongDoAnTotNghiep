@@ -86,7 +86,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Vouchers
                 Discount=x.Discount,
                 Quantity=x.Quantity,
             }).ToListAsync();
-            return new ApiSuccessResult<List<VoucherViewModel>>();
+            return new ApiSuccessResult<List<VoucherViewModel>>(data);
         }
 
         public async Task<ApiResult<PageResult<VoucherViewModel>>> GetAlllPaging(GetVoucherRequest request)

@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
 using BanThietBiDiDongDATN.Application.Catalog.Products.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.Products.ProductImgs;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace BanThietBiDiDongDATN.Application.Catalog.Products
 {
@@ -65,12 +67,25 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
                 ProductDescription = request.ProductDescription,
                 Discount = request.Discount,
                 CategoryId = request.CategoryId,
-                ProductPrice = request.ProductPrice,
                 BrandId = request.BrandId,
                 isActived = request.isActived,
                 CreateDate = DateTime.Now,
-                Quantity = request.Quantity,
+                BeginDateDiscount = request.BeginDateDiscount,
+                ExpiredDateDiscount = request.ExpiredDateDiscount,
             };
+            var listOption = new List<ProductOption>();
+            foreach (var item in request.Options)
+            {
+                var option = new ProductOption()
+                {
+                    ColorOption = item.ColorOption,
+                    SizeOption = item.SizeOption,
+                    OptionPrice = item.OptionPrice,
+                    Quantity = item.Quantity,
+                };
+                listOption.Add(option);
+            }
+            product.productOptions = listOption;
             var listImg = new List<ProductImage>();
             if (request.productImg1 != null)
             {
@@ -140,10 +155,13 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
             if (product == null)
                 return new ApiErrorResult<bool>("Không tìm thấy sản phẩm");
 
-            var image = _context.productImgs.Where(x => x.ProductId == productId);
-            foreach (var img in image)
+            var image = _context.productImgs.Where(x => x.ProductId == productId).ToList();
+            if (image.Count > 0)
             {
-                await _storageService.DeleteFileAsync("product", img.ImagePath);
+                foreach (var img in image)
+                {
+                    await _storageService.DeleteFileAsync("product", img.ImagePath);
+                }
             }
             _context.products.Remove(product);
             var kq = await _context.SaveChangesAsync();
@@ -154,9 +172,34 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
             return new ApiErrorResult<bool>("Xóa sản phẩm không thành công");
         }
 
-        public Task<ApiResult<List<ProductViewModel>>> GetAll()
+        public async Task<ApiResult<List<ProductViewModel>>> GetAll()
         {
-            throw new NotImplementedException();
+            var query =await _context.products.Select(x => new ProductViewModel()
+            {
+                Id = x.Id,
+                ProductName = x.ProductName,
+                ProductDescription = x.ProductDescription,
+                Options = x.productOptions.Select(x => new ProductOptionViewModel()
+                {
+                    id = x.Id,
+                    ColorOption = x.ColorOption,
+                    SizeOption = x.SizeOption,
+                    OptionPrice = x.OptionPrice,
+                    Quantity = x.Quantity
+                }).ToList(),
+                CategoryName = x.category.CategoryName,
+                Discount = x.Discount,
+                CategoryId = x.CategoryId,
+                BrandId = x.BrandId,
+                BrandName = x.brand.BrandName,
+                isActived = x.isActived,
+                Quantity = x.productOptions.Select(x => x.Quantity).Sum(),
+                BeginDateDiscount = x.BeginDateDiscount,
+                ExpiredDateDiscount = x.ExpiredDateDiscount,
+                ProductImg = x.productImgs
+            }).ToListAsync();
+            return new ApiSuccessResult<List<ProductViewModel>>(query);
+                        
         }
 
         public async Task<ApiResult<PageResult<ProductViewModel>>> GetAllPaging(GetProductPagingRequest request)
@@ -165,6 +208,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
                         join c in _context.Categories on product.CategoryId equals c.Id
                         join p in _context.brands on product.BrandId equals p.id
                         select new { product, c, p };
+            var test = _context.products.ToList();
             if (!string.IsNullOrEmpty(request.keyword))
             {
                 query = query.Where(x => x.product.ProductName.Contains(request.keyword));
@@ -180,15 +224,24 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
                     Id = x.product.Id,
                     ProductName = x.product.ProductName,
                     ProductDescription = x.product.ProductDescription,
-                    ProductPrice = x.product.ProductPrice,
-                    CategoryName = x.c.CategoryName,
+                    Options = x.product.productOptions.Select(x => new ProductOptionViewModel()
+                    {
+                        id = x.Id,
+                        ColorOption = x.ColorOption,
+                        SizeOption = x.SizeOption,
+                        OptionPrice = x.OptionPrice,
+                        Quantity = x.Quantity
+                    }).ToList(),
+                    CategoryName = x.product.category.CategoryName,
                     Discount = x.product.Discount,
                     CategoryId = x.product.CategoryId,
                     BrandId = x.product.BrandId,
-                    BrandName = x.p.BrandName,
+                    BrandName = x.product.brand.BrandName,
                     isActived = x.product.isActived,
-                    Quantity = x.product.Quantity,
-                    ProductImg = x.product.productImgs,
+                    Quantity = x.product.productOptions.Select(x => x.Quantity).Sum(),
+                    BeginDateDiscount = x.product.BeginDateDiscount,
+                    ExpiredDateDiscount = x.product.ExpiredDateDiscount,
+                    ProductImg = x.product.productImgs
                 }).ToListAsync();
             var pageResult = new PageResult<ProductViewModel>
             {
@@ -202,14 +255,27 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
 
         public async Task<ApiResult<ProductViewModel>> GetById(int productId)
         {
-            var products =await _context.products.Where(x => x.Id == productId).Select(product => new ProductViewModel()
+            var products = await _context.products.Where(x => x.Id == productId).Select(product => new ProductViewModel()
             {
                 Id = product.Id,
                 ProductName = product.ProductName,
-                ProductPrice = product.ProductPrice,
+                Options = product.productOptions.Select(x=> new ProductOptionViewModel() { 
+                    id=x.Id,
+                    ColorOption=x.ColorOption,
+                    SizeOption=x.SizeOption,
+                    OptionPrice=x.OptionPrice,
+                    Quantity=x.Quantity
+                }).ToList(),
+                Quantity = product.productOptions.Select(x => x.Quantity).Sum(),
                 ProductDescription = product.ProductDescription,
                 Discount = product.Discount,
                 CategoryId = product.CategoryId,
+                BrandId = product.BrandId,
+                BrandName = product.brand.BrandName,
+                CategoryName = product.category.CategoryName,
+                BeginDateDiscount = product.BeginDateDiscount,
+                ExpiredDateDiscount = product.ExpiredDateDiscount,
+                isActived = product.isActived,
                 ProductImg = product.productImgs
             }).FirstOrDefaultAsync();
             //if(product == null) 
@@ -238,89 +304,193 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
 
         public async Task<ApiResult<bool>> Update(ProductUpdateRequest request)
         {
-            var product = _context.products.Where(x=>x.Id==request.Id).FirstOrDefault();
-            if (product == null)
+            try
             {
-                return new ApiErrorResult<bool>("Không tìm thấy sản phẩm");
-            }
-            product.ProductName= request.ProductName;
-            product.ProductPrice = request.ProductPrice;
-            product.ProductDescription = request.ProductDescription;
-            product.BrandId = request.BrandId;
-            product.isActived = request.isActived;
-            product.Discount = request.Discount;
-            product.CategoryId = request.CategoryId;
-            var listImg = new List<ProductImage>();
-            if (request.productImg1 != null)
-            {
-                
-                var productImgs1 = new ProductImage()
+                var product = _context.products.Where(x => x.Id == request.Id).FirstOrDefault();
+                if (product == null)
                 {
-                    Caption = "Thumbnail image",
-                    DateCreated = DateTime.Now,
-                    FileSize = request.productImg1.Length,
-                    ImagePath = await this.SaveFile(request.productImg1),
-                    IsDefault = true,
-                    SortOrder = 1
-                };
-                listImg.Add(productImgs1);
-            }
-            if (request.productImg2 != null)
-            {
-                var productImgs1 = new ProductImage()
+                    return new ApiErrorResult<bool>("Không tìm thấy sản phẩm");
+                }
+                product.ProductName = request.ProductName;
+                product.ProductDescription = request.ProductDescription;
+                product.BrandId = request.BrandId;
+                product.isActived = request.isActived;
+                product.Discount = request.Discount;
+                product.CategoryId = request.CategoryId;
+                product.BeginDateDiscount = request.BeginDateDiscount;
+                product.ExpiredDateDiscount = request.ExpiredDateDiscount;
+                product.productImgs = _context.productImgs.Where(x => x.ProductId == product.Id).ToList();
+                var listOption1 = _context.productOptions.Where(x=>x.ProductId==request.Id).ToList();
+                _context.productOptions.RemoveRange(listOption1);
+                var listOption = new List<ProductOption>();
+                foreach (var item in request.Options)
                 {
-                    Caption = "Thumbnail image",
-                    DateCreated = DateTime.Now,
-                    FileSize = request.productImg2.Length,
-                    ImagePath = await this.SaveFile(request.productImg2),
-                    IsDefault = true,
-                    SortOrder = 2
-                };
-                listImg.Add(productImgs1);
-            }
-            if (request.productImg3 != null)
-            {
-                var productImgs1 = new ProductImage()
+                    var option = new ProductOption()
+                    {
+                        ColorOption = item.ColorOption,
+                        SizeOption = item.SizeOption,
+                        OptionPrice = item.OptionPrice,
+                        Quantity = item.Quantity,
+                    };
+                    listOption.Add(option);
+                }
+                product.productOptions = listOption;
+                //var image = _context.productImgs.Where(x => x.ProductId == request.Id);
+                if (product.productImgs.Count <= 0)
                 {
-                    Caption = "Thumbnail image",
-                    DateCreated = DateTime.Now,
-                    FileSize = request.productImg3.Length,
-                    ImagePath = await this.SaveFile(request.productImg3),
-                    IsDefault = true,
-                    SortOrder = 3
-                };
-                listImg.Add(productImgs1);
-            }
-            if (request.productImg4 != null)
-            {
-                var productImgs1 = new ProductImage()
+                    var listImg = new List<ProductImage>();
+                    if (request.productImg1 != null)
+                    {
+                        var productImgs1 = new ProductImage()
+                        {
+
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg1.Length,
+                            ImagePath = await this.SaveFile(request.productImg1),
+                            IsDefault = true,
+                            SortOrder = 1
+                        };
+                        listImg.Add(productImgs1);
+                    }
+                    if (request.productImg2 != null)
+                    {
+                        var productImgs2 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg2.Length,
+                            ImagePath = await this.SaveFile(request.productImg2),
+                            IsDefault = true,
+                            SortOrder = 2
+                        };
+                        listImg.Add(productImgs2);
+                    }
+                    if (request.productImg3 != null)
+                    {
+                        var productImgs3 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg3.Length,
+                            ImagePath = await this.SaveFile(request.productImg3),
+                            IsDefault = true,
+                            SortOrder = 3
+                        };
+                        listImg.Add(productImgs3);
+                    }
+                    if (request.productImg4 != null)
+                    {
+                        var productImgs4 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg4.Length,
+                            ImagePath = await this.SaveFile(request.productImg4),
+                            IsDefault = true,
+                            SortOrder = 4
+                        };
+                        listImg.Add(productImgs4);
+                    }
+                    product.productImgs = listImg;
+                }
+                else
                 {
-                    Caption = "Thumbnail image",
-                    DateCreated = DateTime.Now,
-                    FileSize = request.productImg4.Length,
-                    ImagePath = await this.SaveFile(request.productImg4),
-                    IsDefault = true,
-                    SortOrder = 4
-                };
-                listImg.Add(productImgs1);
+                    if (request.productImg1 != null)
+                    {
+                        var item = product.productImgs.Where(x => x.SortOrder == 1).FirstOrDefault();
+                        if (item != null)
+                        {
+                            product.productImgs.Remove(item);
+                            await _storageService.DeleteFileAsync("product", item.ImagePath);
+                        }
+                        var productImgs1 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg1.Length,
+                            ImagePath = await this.SaveFile(request.productImg1),
+                            IsDefault = true,
+                            SortOrder = 1
+                        };
+                        product.productImgs.Add(productImgs1);
+                    }
+                    if (request.productImg2 != null && product.productImgs != null)
+                    {
+                        var item = product.productImgs.Where(x => x.SortOrder == 2).FirstOrDefault();
+                        if (item != null)
+                        {
+                            product.productImgs.Remove(item);
+                            await _storageService.DeleteFileAsync("product", item.ImagePath);
+
+                        }
+                        var productImgs2 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg2.Length,
+                            ImagePath = await this.SaveFile(request.productImg2),
+                            IsDefault = true,
+                            SortOrder = 2
+                        };
+                        product.productImgs.Add(productImgs2);
+                    }
+                    if (request.productImg3 != null && product.productImgs != null)
+                    {
+                        var item = product.productImgs.Where(x => x.SortOrder == 3).FirstOrDefault();
+                        if (item != null)
+                        {
+                            product.productImgs.Remove(item);
+                            await _storageService.DeleteFileAsync("product", item.ImagePath);
+                        }
+                        var productImgs3 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg3.Length,
+                            ImagePath = await this.SaveFile(request.productImg3),
+                            IsDefault = true,
+                            SortOrder = 3
+                        };
+                        product.productImgs.Add(productImgs3);
+                    }
+                    if (request.productImg4 != null && product.productImgs != null)
+                    {
+
+                        var item = product.productImgs.Where(x => x.SortOrder == 4).FirstOrDefault();
+                        if (item != null)
+                        {
+                            product.productImgs.Remove(item);
+                            await _storageService.DeleteFileAsync("product", item.ImagePath);
+                        }
+                        var productImgs4 = new ProductImage()
+                        {
+                            Caption = "Thumbnail image",
+                            DateCreated = DateTime.Now,
+                            FileSize = request.productImg4.Length,
+                            ImagePath = await this.SaveFile(request.productImg4),
+                            IsDefault = true,
+                            SortOrder = 4
+                        };
+                        product.productImgs.Add(productImgs4);
+                    }
+                }
+                _context.Update(product);
+                var kq = await _context.SaveChangesAsync();
+                if (kq > 0)
+                {
+                    return new ApiSuccessResult<bool>();
+                }
+                else
+                {
+                    return new ApiErrorResult<bool>("Thay đổi thông tin không thành công");
+                }
             }
-            var image = _context.productImgs.Where(x => x.ProductId == request.Id);
-            foreach (var img in image)
+            catch (Exception ex)
             {
-                if(listImg.Where(x=>x.SortOrder== img.SortOrder).ToList().Count>0)
-                await _storageService.DeleteFileAsync("product", img.ImagePath);
+                return new ApiErrorResult<bool>("Lỗi hệ thống");
             }
-            product.productImgs = listImg;
-            _context.Update(product);
-            var kq= await _context.SaveChangesAsync();
-            if(kq>0)
-            {
-                return new ApiSuccessResult<bool>();
-            }
-            else
-            {
-                return new ApiErrorResult<bool>("Thay đổi thông tin không thành công");
-            }
+
         }
 
         public async Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request)

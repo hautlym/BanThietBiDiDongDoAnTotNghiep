@@ -173,6 +173,42 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.ToTable("brands");
                 });
 
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Cart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid?>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OptionId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("carts");
+                });
+
             modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -208,6 +244,35 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Contact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NumberPhone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("contacts");
+                });
+
             modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.News", b =>
                 {
                     b.Property<int>("Id")
@@ -216,9 +281,8 @@ namespace BanThietBiDiDongDATN.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Author")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("Author")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -252,7 +316,19 @@ namespace BanThietBiDiDongDATN.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<Guid>("AppUserId")
+                    b.Property<Guid?>("AppUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ModifyBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("OrderDate")
@@ -264,7 +340,6 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("ShipDescription")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -286,6 +361,16 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.Property<int>("status")
                         .HasColumnType("int");
 
+                    b.Property<string>("typeOrder")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("typePayment")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("voucherId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
@@ -301,13 +386,16 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("OptionId")
+                        .HasColumnType("int");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.HasKey("OrderId", "ProductId", "OptionId");
 
                     b.HasIndex("ProductId");
 
@@ -321,6 +409,9 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("BeginDateDiscount")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
@@ -337,6 +428,9 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
+                    b.Property<DateTime?>("ExpiredDateDiscount")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
@@ -352,12 +446,6 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<double>("ProductPrice")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
 
                     b.Property<bool>("isActived")
                         .HasColumnType("bit");
@@ -416,6 +504,52 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.ToTable("productImgs");
                 });
 
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.ProductOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ColorOption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ModifyBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OptionPrice")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SizeOption")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("productOptions");
+                });
+
             modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.RatingProduct", b =>
                 {
                     b.Property<int>("Id")
@@ -428,6 +562,18 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ModifyBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("NumberRating")
                         .HasColumnType("float");
@@ -487,6 +633,42 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("vouchers");
+                });
+
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.WareHouse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ModifyBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ProductOptionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductOptionId");
+
+                    b.ToTable("wareHouses");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -586,13 +768,30 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.ToTable("AppUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Order", b =>
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Cart", b =>
                 {
-                    b.HasOne("BanThietBiDiDongDATN.Data.entities.AppUser", "user")
-                        .WithMany()
+                    b.HasOne("BanThietBiDiDongDATN.Data.entities.AppUser", "AppUser")
+                        .WithMany("Carts")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("BanThietBiDiDongDATN.Data.entities.Product", "Product")
+                        .WithMany("Carts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Order", b =>
+                {
+                    b.HasOne("BanThietBiDiDongDATN.Data.entities.AppUser", "user")
+                        .WithMany("Orders")
+                        .HasForeignKey("AppUserId");
 
                     b.Navigation("user");
                 });
@@ -646,6 +845,17 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.ProductOption", b =>
+                {
+                    b.HasOne("BanThietBiDiDongDATN.Data.entities.Product", "product")
+                        .WithMany("productOptions")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("product");
+                });
+
             modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.RatingProduct", b =>
                 {
                     b.HasOne("BanThietBiDiDongDATN.Data.entities.Product", "product")
@@ -655,6 +865,24 @@ namespace BanThietBiDiDongDATN.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("product");
+                });
+
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.WareHouse", b =>
+                {
+                    b.HasOne("BanThietBiDiDongDATN.Data.entities.ProductOption", "ProductOption")
+                        .WithMany("wareHouses")
+                        .HasForeignKey("ProductOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductOption");
+                });
+
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.AppUser", b =>
+                {
+                    b.Navigation("Carts");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Brand", b =>
@@ -674,11 +902,20 @@ namespace BanThietBiDiDongDATN.Data.Migrations
 
             modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.Product", b =>
                 {
+                    b.Navigation("Carts");
+
                     b.Navigation("orderDetails");
 
                     b.Navigation("productImgs");
 
+                    b.Navigation("productOptions");
+
                     b.Navigation("ratingProducts");
+                });
+
+            modelBuilder.Entity("BanThietBiDiDongDATN.Data.entities.ProductOption", b =>
+                {
+                    b.Navigation("wareHouses");
                 });
 #pragma warning restore 612, 618
         }

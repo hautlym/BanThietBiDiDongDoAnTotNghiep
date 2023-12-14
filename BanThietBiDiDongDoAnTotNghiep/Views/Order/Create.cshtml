@@ -1,0 +1,220 @@
+﻿@using BanThietBiDiDongDATN.Data.Enums;
+@model BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos.CreateOrderRequest
+
+@{
+    ViewData["Title"] = "Tạo đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function increase(event) {
+        event.preventDefault();
+        var item = document.getElementById("numberProductRender")
+        var number = Number.parseInt(item.value);
+        item.value = number + 1;
+        this.form.submit()
+    }
+</script>
+<script>
+    function getOption(i, Id) {
+        $(".Product-" + i).show();
+        $.ajax({
+            url: "@Url.Action("getProductOption", "Order")",
+            data: { Id: Id },
+            cache: false,
+            type: "POST",
+            success: function (data) {
+                console.log(data)
+                var markup = "<option value='0'>-Chọn option--</option>";;
+                for (var x = 0; x < data.length; x++) {
+                    markup += "<option value=" + data[x].value + ">" + data[x].text + "</option>";
+                }
+                $(".ProductOption-" + i).html(markup).show();
+            },
+            error: function (reponse) {
+                alert("error : " + reponse);
+            }
+        });
+    }
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <h4 class="mt-4">@ViewData["Title"]</h4>
+                <ol class="breadcrumb bg-white">
+                    <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a asp-action="Index">Quản lí đơn hàng</a> </li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-valide d-flex flex-wrap" asp-action="Create" asp-controller="Order" method="get">
+                        <div class="form-validation col-lg-9 col-md-8 col-12">
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Số sản phẩm<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <input type="number" name="numberProduct" class="form-control" onchange="this.form.submit()" id="numberProductRender" value="@ViewBag.NumberProduct" />
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </form>
+                    <form class="form-valide d-flex flex-wrap" asp-action="Create" method="post">
+                        <!--Avatar-->
+
+                        <div class="form-validation col-lg-9 col-md-8 col-12">
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Người nhận<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <input type="text" asp-for="ShipName" class="form-control" id="val-email" placeholder="Nhập tên người nhận.." aria-required="true" aria-describedby="val-email-error">
+                                    <span asp-validation-for="ShipName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Địa chỉ <span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <input type="text" asp-for="ShipAddress" class="form-control" id="val-email" placeholder="Nhập địa chỉ.." aria-required="true" aria-describedby="val-email-error">
+                                    <span asp-validation-for="ShipAddress" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Số điện thoại<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <input type="text" asp-for="ShipNumberPhone" class="form-control" id="val-email" placeholder="Nhập số diện thoại.." aria-required="true" aria-describedby="val-email-error">
+                                    <span asp-validation-for="ShipNumberPhone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Email<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <input type="text" asp-for="ShipEmail" class="form-control" id="val-email" placeholder="Nhập số email.." aria-required="true" aria-describedby="val-email-error">
+                                    <span asp-validation-for="ShipEmail" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Voucher<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <input type="text" asp-for="voucherId" class="form-control" id="val-email" placeholder="Nhập voucher.." aria-required="true" aria-describedby="val-email-error">
+                                    <span asp-validation-for="voucherId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Mô tả<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <textarea asp-for="ShipDescription" class="form-control" id="val-email" placeholder="Nhập mô tả.." aria-required="true" aria-describedby="val-email-error"></textarea>
+                                    <span asp-validation-for="ShipDescription" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="typeOrder" value="AdminCreate" />
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Loại thanh toán<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <select asp-for="typePayment" class="form-control">
+                                        @foreach (var status in Enum.GetValues(typeof(TypeCheckOut)))
+                                        {
+                                            <option value="@status">@EnumExtensions.GetEnumMemberValue((TypeCheckOut)status)</option>
+                                        }
+                                        @* <option value="COD">COD</option>
+                                        <option value="Online">Online</option> *@
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row is-invalid">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Tình trạng thanh toán<span class="text-danger">*</span>
+                                </label>
+                                <div class="col-lg-7">
+                                    <select asp-for="status" class="form-control">
+                                        @foreach (var status1 in Enum.GetValues(typeof(OrderStatus)))
+                                        {
+
+                                            <option value="@status1">@EnumExtensions.GetEnumMemberValue((OrderStatus)status1)</option>
+                                        }
+                                        @* <option value="Pendding">Đang xử lí</option>
+                                        <option value="PaymentFailed">Chưa thanh toán</option>
+                                        <option value="PaymentReceived">Đã thanh toán</option>
+                                        <option value="Cancel">Hủy đơn</option> *@
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row is-invalid " style="position:relative">
+                                <label class="col-lg-4 col-form-label" for="val-email">
+                                    Chọn sản phẩm <span class="text-danger">*</span>
+                                </label>
+                                <div id="ListProduct" class="col-lg-7" style="width:100%;">
+                                    @for (int i = 0; i < ViewBag.NumberProduct; i++)
+                                    {
+                                        <div class="ProductIte  mb-2">
+                                            <div class="row justify-content-between align-items-center  " sy>
+                                                <div class="col-lg-5" style=" margin-right:5px; padding-right:0;">
+                                                    <select asp-items="@ViewBag.Product" asp-for="carts[i].ProductId" class="form-control select2 Product-@i" onchange="getOption(@i,this.value)">
+                                                        <option value="0">
+                                                            --Chọn sản phẩm--
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-3" style="padding:0;">
+                                                    <select class="form-control select2 ProductOption-@i" asp-for="carts[i].OptionId">
+                                                        <option value="0">
+                                                            -- Chọn Option --
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-3" style="padding-left:0;">
+                                                    <input type="number" class="form-control " style="height:30px" asp-for="carts[i].Quantity" placeholder="Số lượng" />
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-between align-items-center mb-2">
+                                                <div class="col-lg-5" style=" margin-right:5px; padding-right:0;">
+                                                    <span asp-validation-for="carts[i].ProductId" class="text-danger"></span>
+                                                </div>
+                                                <div class="col-lg-3" style="padding:0;">
+                                                    <span asp-validation-for="carts[i].OptionId" class="text-danger"></span>
+                                                </div>
+                                                <div class="col-lg-3" style="padding-left:0;">
+                                                    <span asp-validation-for="carts[i].Quantity" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-lg-8 ml-auto">
+                                    <a class="btn btn-secondary " asp-action="Index"> Hủy </a>
+                                    <button type="submit" class="btn btn-primary">Thêm đơn hàng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

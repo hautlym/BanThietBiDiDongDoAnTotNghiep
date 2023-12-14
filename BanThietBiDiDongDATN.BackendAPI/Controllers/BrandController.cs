@@ -13,12 +13,10 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
     [ApiController]
     public class BrandController : ControllerBase
     {
-        private readonly BanThietBiDiDongDATNDbContext _context;
         private readonly IManageBrand _manage;
 
-        public BrandController(BanThietBiDiDongDATNDbContext context, IManageBrand manage)
+        public BrandController(IManageBrand manage)
         {
-            _context = context;
             _manage = manage;
         }
 
@@ -39,7 +37,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
         public async Task<IActionResult> GetbyId(int brandId)
         {
             var brand = await _manage.GetById(brandId);
-            if (brand.ResultObj == null)
+            if (!brand.IsSuccessed)
             {
                 return NotFound(brand);
             }
@@ -57,7 +55,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
                 return BadRequest(ModelState);
             }
             var result = await _manage.Create(request);
-            if (result.IsSuccessed)
+            if (!result.IsSuccessed)
                 return BadRequest(result);
             return Ok(result);
         }
@@ -71,7 +69,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
                 return BadRequest(ModelState);
             }
             var Result = await _manage.Update(request);
-            if (Result.IsSuccessed)
+            if (!Result.IsSuccessed)
                 return BadRequest(Result);
             return Ok(Result);
         }
@@ -80,7 +78,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
         public async Task<IActionResult> Delete(int brandID)
         {
             var Result = await _manage.Delete(brandID);
-            if (Result.IsSuccessed)
+            if (!Result.IsSuccessed)
                 return BadRequest(Result);
             return Ok(Result);
         }

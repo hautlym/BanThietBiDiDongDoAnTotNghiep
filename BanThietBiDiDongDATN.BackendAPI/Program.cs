@@ -26,6 +26,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using BanThietBiDiDongDATN.Application.Catalog.Vouchers;
 using BanThietBiDiDongDATN.Application.Catalog.Products;
+using Serilog;
+using BanThietBiDiDongDATN.Application.Catalog.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -35,7 +37,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-
+builder.Host.UseSerilog((hostingcontext, logggerConfiguration) => { logggerConfiguration.ReadFrom.Configuration(hostingcontext.Configuration); });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -103,6 +105,7 @@ builder.Services.AddTransient<IManagePublicUser, ManagePublicUser>();
 builder.Services.AddTransient<IRolesService, RolesService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IManageProduct, ManageProduct>();
+builder.Services.AddTransient<IManageOrder, ManageOrder>();
 builder.Services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
 string issuer = "https://hello.api.com";
 string signingKey = "123456789987654321";
@@ -131,7 +134,7 @@ builder.Services.AddAuthentication(opt =>
 
 
 var app = builder.Build();
-
+//app.UseSerilogRequestLogging();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

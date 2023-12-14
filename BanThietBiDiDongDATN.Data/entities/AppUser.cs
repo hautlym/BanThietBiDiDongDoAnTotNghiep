@@ -32,6 +32,8 @@ namespace BanThietBiDiDongDATN.Data.entities
         public DateTime? LastSignIn { get; set; }
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
+        public List<Cart> Carts { get; set; }
+        public List<Order> Orders { get; set; }
 
     }
 }

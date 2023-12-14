@@ -26,13 +26,19 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
             return Ok(product);
         }
 
-    
+
         [HttpGet("paging")]
         [AllowAnonymous]
         public async Task<IActionResult> Get([FromQuery] GetProductPagingRequest request)
         {
-            var product = await _manageProduct.GetAllPaging(request);
-            return Ok(product);
+            try
+            {
+                var product = await _manageProduct.GetAllPaging(request);
+                return Ok(product);
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("{productId}")]

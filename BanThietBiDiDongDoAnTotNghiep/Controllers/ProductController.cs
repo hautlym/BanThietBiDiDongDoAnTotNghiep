@@ -23,7 +23,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
             _categoriesApiClient = categoriesApiClient;
             _brandApiClient = brandApiClient;
         }
-        public async Task<IActionResult> Index(string keyword, int? categoryId, int PageIndex = 1, int PageSize = 5)
+        public async Task<IActionResult> Index(string keyword, int? categoryId, int PageIndex = 1, int PageSize = 10)
         {
             var request = new GetProductPagingRequest()
             {
@@ -40,7 +40,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
                 Selected = categoryId.HasValue && categoryId.Value == x.Id
             });
             var data = await _productApiClient.GetAllPaging(request);
-            ViewBag.Keyword = keyword;
+            ViewData["Keyword"]= keyword;
             if (TempData["result"] != null)
             {
                 ViewBag.SuscessMsg = TempData["result"];
@@ -69,9 +69,22 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
+            var categories = await _categoriesApiClient.GetAll();
+            ViewBag.Category = categories.ResultObj.Select(x => new SelectListItem()
+            {
+                Text = x.CategoryName,
+                Value = x.Id.ToString(),
+                Selected=x.Id== request.CategoryId
+            });
+            var brand = await _brandApiClient.GetAllBrand();
+            ViewBag.Brand = brand.ResultObj.Select(x => new SelectListItem()
+            {
+                Text = x.BrandName,
+                Value = x.id.ToString(),
+                Selected=x.id==request.BrandId
+            });
             if (!ModelState.IsValid)
                 return View();
-
             var result = await _productApiClient.Create(request);
             if (result.IsSuccessed)
             {
@@ -85,6 +98,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            
             var result = await _productApiClient.GetById(id);
             if (result.IsSuccessed)
             {
@@ -95,15 +109,31 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
                     ProductDescription = product.ProductDescription,
                     CategoryId = product.CategoryId,
                     BrandId = product.BrandId,
-                    ProductPrice = product.ProductPrice,
+                    Options = product.Options,
                     Discount = product.Discount,
                     isActived = product.isActived,
+                    BeginDateDiscount= product.BeginDateDiscount,
+                    ExpiredDateDiscount= product.ExpiredDateDiscount,
                     ImgUrl1= product.ProductImg.Where(x=>x.SortOrder==1).FirstOrDefault()!=null? product.ProductImg.Where(x => x.SortOrder == 1).FirstOrDefault()!.ImagePath:"",
                     ImgUrl2 = product.ProductImg.Where(x => x.SortOrder == 2).FirstOrDefault() != null ? product.ProductImg.Where(x => x.SortOrder == 2).FirstOrDefault()!.ImagePath : "",
                     ImgUrl3 = product.ProductImg.Where(x => x.SortOrder == 3).FirstOrDefault() != null ? product.ProductImg.Where(x => x.SortOrder == 3).FirstOrDefault()!.ImagePath : "",
                     ImgUrl4 = product.ProductImg.Where(x => x.SortOrder == 4).FirstOrDefault() != null ? product.ProductImg.Where(x => x.SortOrder == 4).FirstOrDefault()!.ImagePath : "",
                     Id = product.Id,
                 };
+                var categories = await _categoriesApiClient.GetAll();
+                ViewBag.Category = categories.ResultObj.Select(x => new SelectListItem()
+                {
+                    Text = x.CategoryName,
+                    Value = x.Id.ToString(),
+                    Selected = x.Id==updateRequest.CategoryId ? true : false
+                });
+                var brand = await _brandApiClient.GetAllBrand();
+                ViewBag.Brand = brand.ResultObj.Select(x => new SelectListItem()
+                {
+                    Text = x.BrandName,
+                    Value = x.id.ToString(),
+                    Selected = x.id ==updateRequest.BrandId ? true : false
+                });
                 return View(updateRequest);
             }
             return RedirectToAction("Error", "Home");
@@ -112,8 +142,23 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Edit(ProductUpdateRequest request)
         {
+            var categories = await _categoriesApiClient.GetAll();
+
+            ViewBag.Category = categories.ResultObj.Select(x => new SelectListItem()
+            {
+                Text = x.CategoryName,
+                Value = x.Id.ToString(),
+                Selected = x.Id == request.CategoryId ? true : false
+            });
+            var brand = await _brandApiClient.GetAllBrand();
+            ViewBag.Brand = brand.ResultObj.Select(x => new SelectListItem()
+            {
+                Text = x.BrandName,
+                Value = x.id.ToString(),
+                Selected= x.id == request.BrandId?true:false
+            });
             if (!ModelState.IsValid)
-                return View();
+                return View(request);
 
             var result = await _productApiClient.Update(request);
             if (result.IsSuccessed)
@@ -128,10 +173,15 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
         }
        
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int Id)
         {
-            var result = await _productApiClient.GetById(id);
-            return View(result);
+            var result = await _productApiClient.GetById(Id);
+            if(!result.IsSuccessed)
+            {
+                TempData["failed"] = "Lỗi";
+                return RedirectToAction("Index");
+            }
+            return View(result.ResultObj);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int productId)

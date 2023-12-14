@@ -1,0 +1,79 @@
+﻿@model BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos.OrderViewModel
+
+@{
+    ViewData["Title"] = "Thông tin đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container-fluid">
+    <div class="col-lg-12">
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <h4 class="mt-4">@ViewData["Title"]</h4>
+            <ol class="breadcrumb bg-white">
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index"> Quản lí đơn hàng</a></li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="table-responsive col-md-8">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th> Mã đơn hàng:</th>
+                                    <td>@Html.DisplayFor(model => model.Id)</td>
+                                </tr>
+                                <tr>
+                                    <th> Người nhận:</th>
+                                    <td>@Html.DisplayFor(model => model.ShipName)</td>
+                                </tr>
+                                <tr>
+                                    <th> Số điện thoại:</th>
+                                    <td>@Html.DisplayFor(model => model.ShipNumberPhone)</td>
+                                </tr>
+                                <tr>
+                                    <th> Email:</th>
+                                    <td>@Html.DisplayFor(model => model.ShipEmail)</td>
+                                </tr>
+                                <tr>
+                                    <th> Địa chỉ:</th>
+                                    <td>@Html.DisplayFor(model => model.ShipAddress)</td>
+                                </tr>
+                                <tr>
+                                    <th> Mô tả:</th>
+                                    <td>@Html.DisplayFor(model => model.ShipDescription)</td>
+                                </tr>
+                                <tr>
+                                    <th> Voucher:</th>
+                                    <td>@Html.DisplayFor(model => model.voucherId)</td>
+                                </tr>
+                                <tr>
+                                    <th> Trạng thái:</th>
+                                    <td>@Html.DisplayFor(model => model.status)</td>
+                                </tr>
+                                <tr>
+                                    <th> Loai thanh toán:</th>
+                                    <td>@Html.DisplayFor(model => model.typePayment)</td>
+                                </tr>
+                                <tr>
+                                    <th> Người đặt:</th>
+                                    <td>@Html.DisplayFor(model => model.AppUserId)</td>
+                                </tr>
+                                <tr>
+                                    <th> Ngày đặt:</th>
+                                    <td>@Html.DisplayFor(model => model.OrderDate)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+

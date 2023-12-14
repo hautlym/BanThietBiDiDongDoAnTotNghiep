@@ -80,7 +80,7 @@
     }
 
     tr:nth-last-child(2), td:nth-last-child(2) {
-        width: 10%
+        width: 20%
     }
 
     tr:last-child, th:last-child {
@@ -158,18 +158,19 @@
                                             <div class="bootstrap-media">
                                                 <div class="media">
                                                     <div class="media-body">
-                                                        
-                                                            <partial name="Detail" model="new VoucherViewModel(){Id=item.Id,VoucherCode=item.VoucherCode,VoucherName=item.VoucherName,Discount=item.Discount,
+
+                                                        <partial name="Detail" model="new VoucherViewModel(){Id=item.Id,VoucherCode=item.VoucherCode,VoucherName=item.VoucherName,Discount=item.Discount,
 Quantity= item.Quantity, BeginDate=item.BeginDate, ExpiredDate=item.ExpiredDate}" />
-                                                        </div>
-                                                        <div>@item.VoucherCode</div>
-                                                        @* <h5 class="mt-0"><a> @item.VoucherName</a></h5> *@
-                                                        
-                                                    
+                                                    </div>
+                                                    <div>@item.VoucherCode</div>
+                                                    @* <h5 class="mt-0"><a> @item.VoucherName</a></h5> *@
+
+
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>@if (item.Quantity > 0)
+                                        <td>
+                                            @if (item.Quantity > 0)
                                             {
                                                 <span>@item.Quantity</span>
                                             }
@@ -180,14 +181,15 @@ Quantity= item.Quantity, BeginDate=item.BeginDate, ExpiredDate=item.ExpiredDate}
                                         </td>
                                         <td>@item.Discount %</td>
                                         <td>
-                                            
-                                            @if(item.ExpiredDate<DateTime.Now)
+
+                                            @if (item.ExpiredDate < DateTime.Now)
                                             {
                                                 <span class="badge badge-danger px-2">Đã hết hạn</span>
                                             }
                                             else
                                             {
-                                                <span>Còn @item.ExpiredDate.Subtract(DateTime.Now).Days ngày</span>
+                                                var remainingTime = item.ExpiredDate - DateTime.Now;
+                                                <span>Còn @HelpperMethod.FormatRemainingTime(remainingTime)</span>
                                             }
                                         </td>
 
@@ -209,7 +211,7 @@ Quantity= item.Quantity, BeginDate=item.BeginDate, ExpiredDate=item.ExpiredDate}
                                                         </div>
                                                         <!-- Modal -->
                                                         <div class="modal fade" id="basicModal@{
-                                                                                @item.Id
+                                                                                    @item.Id
 }">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">

@@ -20,6 +20,10 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products.Dtos
         public bool isActived { get; set; }
         public int CategoryId { get; set; }
         public int Quantity { get; set; }
+  
+        public DateTime? BeginDateDiscount { get; set; }
+        public DateTime? ExpiredDateDiscount { get; set; }
         public List<ProductImage> ProductImg { get; set; }
+        public List<ProductOptionViewModel> Options { get; set; }
     }
 }

@@ -83,15 +83,29 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
                 ByteArrayContent bytes = new ByteArrayContent(data);
                 requestContent.Add(bytes, "productImg4", request.productImg4.FileName);
             }
-
             requestContent.Add(new StringContent(request.ProductName.ToString()), "ProductName");
-            requestContent.Add(new StringContent(request.ProductPrice.ToString()), "ProductPrice");
-            requestContent.Add(new StringContent(request.Quantity.ToString()), "Quantity");
             requestContent.Add(new StringContent(request.ProductDescription.ToString()), "ProductDescription");
             requestContent.Add(new StringContent(request.isActived.ToString()), "isActived");
             requestContent.Add(new StringContent(request.Discount.ToString()), "Discount");
+            requestContent.Add(new StringContent(request.BeginDateDiscount.ToString()), "BeginDateDiscount");
+            requestContent.Add(new StringContent(request.ExpiredDateDiscount.ToString()), "ExpiredDateDiscount");
             requestContent.Add(new StringContent(request.BrandId.ToString()), "BrandId");
             requestContent.Add(new StringContent(request.CategoryId.ToString()), "CategoryId");
+            if (request.Options != null && request.Options.Any())
+            {
+                for (var i = 0; i < request.Options.Count; i++)
+                {
+                    // Lấy đối tượng Option từ danh sách
+                    var option = request.Options[i];
+
+                    // Thêm các thuộc tính của Option vào MultipartFormDataContent
+                    requestContent.Add(new StringContent(option.OptionPrice), $"Options[{i}].OptionPrice");
+                    requestContent.Add(new StringContent(option.ColorOption), $"Options[{i}].ColorOption");
+                    requestContent.Add(new StringContent(option.SizeOption), $"Options[{i}].SizeOption");
+                    requestContent.Add(new StringContent(option.Quantity.ToString()), $"Options[{i}].Quantity");
+                    // ... thêm các thuộc tính khác của Option
+                }
+            }
             var response = await client.PostAsync($"/api/Product", requestContent);
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
@@ -115,9 +129,16 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
         }
 
-        public Task<ApiResult<List<ProductViewModel>>> GetAll()
+        public async Task<ApiResult<List<ProductViewModel>>> GetAll()
         {
-            throw new NotImplementedException();
+            var client = _httpClient.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var response = await client.GetAsync($"api/Product");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<List<ProductViewModel>>>(body);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<List<ProductViewModel>>>(body);
         }
 
         public async Task<ApiResult<PageResult<ProductViewModel>>> GetAllPaging(GetProductPagingRequest request)
@@ -156,17 +177,7 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
             var requestContent = new MultipartFormDataContent();
-
-            if (request.productImg1 != null)
-            {
-                byte[] data;
-                using (var br = new BinaryReader(request.productImg1.OpenReadStream()))
-                {
-                    data = br.ReadBytes((int)request.productImg1.OpenReadStream().Length);
-                }
-                ByteArrayContent bytes = new ByteArrayContent(data);
-                requestContent.Add(bytes, "productImg1", request.productImg1.FileName);
-            }
+         
             if (request.productImg1 != null)
             {
                 byte[] data;
@@ -209,14 +220,28 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
             }
             requestContent.Add(new StringContent(request.Id.ToString()), "Id");
             requestContent.Add(new StringContent(request.ProductName.ToString()), "ProductName");
-            requestContent.Add(new StringContent(request.ProductPrice.ToString()), "ProductPrice");
-            requestContent.Add(new StringContent(request.Quantity.ToString()), "Quantity");
             requestContent.Add(new StringContent(request.ProductDescription.ToString()), "ProductDescription");
             requestContent.Add(new StringContent(request.isActived.ToString()), "isActived");
+            requestContent.Add(new StringContent(request.BeginDateDiscount.ToString()), "BeginDateDiscount");
+            requestContent.Add(new StringContent(request.ExpiredDateDiscount.ToString()), "ExpiredDateDiscount");
             requestContent.Add(new StringContent(request.Discount.ToString()), "Discount");
             requestContent.Add(new StringContent(request.BrandId.ToString()), "BrandId");
             requestContent.Add(new StringContent(request.CategoryId.ToString()), "CategoryId");
+            if (request.Options != null && request.Options.Any())
+            {
+                for (var i = 0; i < request.Options.Count; i++)
+                {
+                    // Lấy đối tượng Option từ danh sách
+                    var option = request.Options[i];
 
+                    // Thêm các thuộc tính của Option vào MultipartFormDataContent
+                    requestContent.Add(new StringContent(option.OptionPrice), $"Options[{i}].OptionPrice");
+                    requestContent.Add(new StringContent(option.ColorOption), $"Options[{i}].ColorOption");
+                    requestContent.Add(new StringContent(option.SizeOption), $"Options[{i}].SizeOption");
+                    requestContent.Add(new StringContent(option.Quantity.ToString()), $"Options[{i}].Quantity");
+                    // ... thêm các thuộc tính khác của Option
+                }
+            }
             var response = await client.PutAsync($"/api/Product", requestContent);
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)

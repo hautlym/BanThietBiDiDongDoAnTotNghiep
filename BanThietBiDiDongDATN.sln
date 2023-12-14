@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BanThietBiDiDongDATN.Backen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BanThietBiDiDongDATN.ApiIntegration", "BanThietBiDiDongDATN.ApiIntegration\BanThietBiDiDongDATN.ApiIntegration.csproj", "{5A3B50BD-EF27-459A-8575-01C606BB9E8C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BanThietBiDiDongDATN.MvcApp", "BanThietBiDiDongDATN.MvcApp\BanThietBiDiDongDATN.MvcApp.csproj", "{D43B4436-9B7B-4427-B58C-5D620BCAB95C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BanThietBiDiDongDATN.Test", "BanThietBiDiDongDATN.Test\BanThietBiDiDongDATN.Test.csproj", "{D7D77977-4CE5-4915-8213-A291AAA8BCF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{5A3B50BD-EF27-459A-8575-01C606BB9E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A3B50BD-EF27-459A-8575-01C606BB9E8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A3B50BD-EF27-459A-8575-01C606BB9E8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D43B4436-9B7B-4427-B58C-5D620BCAB95C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D43B4436-9B7B-4427-B58C-5D620BCAB95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D43B4436-9B7B-4427-B58C-5D620BCAB95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D43B4436-9B7B-4427-B58C-5D620BCAB95C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7D77977-4CE5-4915-8213-A291AAA8BCF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7D77977-4CE5-4915-8213-A291AAA8BCF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7D77977-4CE5-4915-8213-A291AAA8BCF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7D77977-4CE5-4915-8213-A291AAA8BCF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,7 +8,7 @@ namespace BanThietBiDiDongDATN.Data.configurations
     {
         public void Configure(EntityTypeBuilder<OrderDetail> builder)
         {
-            builder.HasKey(x => new { x.OrderId, x.ProductId });
+            builder.HasKey(x => new { x.OrderId, x.ProductId,x.OptionId });
             builder.HasOne(x => x.Order).WithMany(x => x.OrderDetails).HasForeignKey(x => x.OrderId);
             builder.HasOne(x => x.Products).WithMany(x => x.orderDetails).HasForeignKey(x => x.ProductId);
         }

@@ -4,7 +4,7 @@
 @inject IConfiguration Configuration
 @model PageResult<ProductViewModel>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lí sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -55,7 +55,6 @@
         </script>
     }
 }
-
 <style>
     tr:first-child, th:first-child {
         width: 5%
@@ -112,7 +111,7 @@
                     <form asp-action="Index" ajax- class="col-lg-3 col-md-6 col-12 p-0">
 
                         <div class="input-group ">
-                            <input type="text" value="@ViewBag.Keyword" name="keyword" class="form-control rounded " placeholder="Nhập từ khóa cần tìm ....">
+                            <input type="text" value="@ViewData["Keyword"]" name="keyword" class="form-control rounded " placeholder="Nhập từ khóa cần tìm ....">
                             <div class="input-group-append">
                                 <button style="z-index:4;" class="btn rounded-end btn-outline-primary " type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
                             </div>
@@ -126,7 +125,8 @@
                                 <th>STT</th>
                                 <th>Sản phẩm</th>
                                 <th>Số lượng</th>
-                                <th>Giá</th>
+                                <th>Thương hiệu</th>
+                                <th>Danh mục</th>
                                 <th>Giảm giá</th>
                                 <th>Trạng thái</th>
                                 @* <th>Trạng thái</th> *@
@@ -150,30 +150,53 @@
                                         <td>
                                             <div class="bootstrap-media">
                                                 <div class="media">
-                                                    @foreach (var img in item.ProductImg)
+                                                    @{
+                                                        string url = null;
+                                                        var lisstImg = item.ProductImg.OrderBy(x => x.SortOrder);
+                                                    }
+                                                    @foreach (var img in lisstImg)
                                                     {
                                                         if (img != null)
-
                                                         {
-                                                            <img class="mr-3 "  height="50" width="50" src="@Configuration["BaseAddress"]/user-content/user/@img">
-                                                        }
-                                                        else
-                                                        {
-                                                            <img class="mr-3 "  height="50" width="50" src="/images/No-Image.jpg">
+                                                            url = img.ImagePath;
+                                                            break;
                                                         }
                                                     }
+                                                    @if (!String.IsNullOrEmpty(url))
+                                                    {
+                                                        <img class="mr-3 " height="50" width="50" src="@Configuration["BaseAddress"]/user-content/product/@url">
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <img class="mr-3 " height="50" width="50" src="/images/No-Image.jpg">
+                                                    }
                                                     <div class="media-body">
-                                                        <h5 class="mt-0"><a asp-action="Detail" asp-route-UserId="@item.Id">@item.ProductName</a> </h5>
+                                                        <h5 class="mt-0"><a asp-action="Details" asp-route-Id="@item.Id">@item.ProductName</a> </h5>
                                                         @* @item. *@
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            @item.Quantity
+                                            @if (item.Quantity == 0)
+                                            {
+                                                <span class="badge badge-danger px-2">Hết hàng</span>
+                                            }
+                                            else
+                                            {
+                                                @item.Quantity
+                                            }
                                         </td>
                                         <td>
-                                            @item.Discount
+                                            @item.BrandName
+                                           @*  @String.Format("{0:n0}", item.ProductPrice) VNĐ *@
+                                        </td>
+                                        <td>
+                                            @item.CategoryName
+                                        </td>
+                                        <td>
+                                            @item.Discount %
                                         </td>
                                         <td>
                                             @if (item.isActived == true)
@@ -204,7 +227,7 @@
                                                         </div>
                                                         <!-- Modal -->
                                                         <div class="modal fade" id="basicModal@{
-                                                                                @item.Id
+                                                                                    @item.Id
 }">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
@@ -215,7 +238,7 @@
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">Bạn có muốn xóa sản phẩm <strong>@item.ProductName</strong> </div>
-                                                                    <input type="hidden" name="id" value="@item.Id">
+                                                                    <input type="hidden" name="productId" value="@item.Id">
                                                                     <div class="modal-footer">
                                                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                                                                         <button type="submit" class="btn btn-danger">Xóa sản phẩm</button>

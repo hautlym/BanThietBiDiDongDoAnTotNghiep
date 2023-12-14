@@ -15,8 +15,7 @@ namespace BanThietBiDiDongDATN.Data.entities
         [Required]
         [Column(TypeName = "nvarchar(200)")]
         public string ProductName { get; set; }
-        [Required]
-        public double ProductPrice { get; set; }
+      
         [MaxLength(200)]
         [Column(TypeName = "nvarchar(200)")]
         public StatusProduct status { get; set; } = StatusProduct.Stock;
@@ -24,15 +23,17 @@ namespace BanThietBiDiDongDATN.Data.entities
         [Column(TypeName = "nvarchar(max)")]
         public string ProductDescription { get; set; }
         public int BrandId { get; set; }
+        public DateTime? BeginDateDiscount { get; set; }
+        public DateTime? ExpiredDateDiscount { get; set; }
         public double Discount { get; set; }
         public bool isActived { get; set; }
         public int CategoryId { get; set; }
-        [Required]
-        public int Quantity { get; set; }
         public Brand brand { get; set; }
         public Category category { get; set; }
         public List<ProductImage> productImgs { get; set; }
         public List<RatingProduct> ratingProducts { get; set; }
         public List<OrderDetail> orderDetails { get; set; }
+        public List<ProductOption> productOptions { get; set; }
+        public List<Cart> Carts { get; set; }
     }
 }

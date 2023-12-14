@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using BanThietBiDiDongDATN.Admin.Models;
 using BanThietBiDiDongDATN.ApiIntegration.Service.UserApiClient;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
+    [Authorize(Roles ="Administrator")]
     public class RoleController : Controller
     {
         private readonly IConfiguration _configuration;

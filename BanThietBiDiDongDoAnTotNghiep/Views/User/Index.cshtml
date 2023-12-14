@@ -178,21 +178,10 @@
                                             }
                                         </td>
                                         <td>
-                                            @if (item.LastSignIn != null)
+                                            @if (item.LastSignIn!=null)
                                             {
-                                                TimeSpan timeSpan = item.LastSignIn.Value.TimeOfDay;
-                                                @if (timeSpan.Days > 0)
-                                                {
-                                                    <span>@timeSpan.Days ngày trước </span>
-                                                }
-                                                else if (timeSpan.Hours > 0)
-                                                {
-                                                    <span>@timeSpan.Days giờ trước </span>
-                                                }
-                                                else
-                                                {
-                                                    <span>@timeSpan.Minutes phút trước </span>
-                                                }
+                                                var remainingTime = DateTime.Now - item.LastSignIn;
+                                                <span> @HelpperMethod.FormatRemainingTime(remainingTime??TimeSpan.Zero) trước</span>
                                             }
 
                                         </td>

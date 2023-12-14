@@ -1,11 +1,12 @@
 ﻿using BanThietBiDiDongDATN.Data.entities;
+using BanThietBiDiDongDATN.Data.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BanThietBiDiDongDATNApplication.Catalog.Orders.Dtos
+namespace BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos
 {
     public class UpdateOrderRequest
     {
@@ -17,5 +18,8 @@ namespace BanThietBiDiDongDATNApplication.Catalog.Orders.Dtos
         public string ShipNumberPhone { get; set; }
         public string ShipDescription { get; set; }
         public Guid AppUserId { get; set; }
+        public OrderStatus status { get; set; } 
+        public int? voucherId { get; set; }
+        public TypeCheckOut typePayment { get; set; }
     }
 }
