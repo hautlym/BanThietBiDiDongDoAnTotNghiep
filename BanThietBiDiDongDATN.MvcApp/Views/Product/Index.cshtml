@@ -1,7 +1,28 @@
-﻿@{
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Categories;
+@using BanThietBiDiDongDATN.Application.Catalog.Commom;
+@using BanThietBiDiDongDATN.Application.Catalog.Products.Dtos;
+@using BanThietBiDiDongDATN.Data.entities;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model PageResult<ProductViewModel>
+@{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<style>
+    .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-label::before {
+        border: 1px solid #dadada;
+        background-color: #f9f9f9;
+    }
+</style>
+<script>
+    function reloadAndReset() {
+        // Đặt lại tất cả các tham số của URL
+        var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.location.href = newUrl;
+    }
+
+</script>
 <main class="main">
     <div class="page-header text-center" style="background-image: url('/clientApp/assets/images/page-header-bg.jpg')">
         <div class="container">
@@ -19,462 +40,294 @@
 
     <div class="page-content">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-9">
-                    <div class="toolbox">
-                        <div class="toolbox-left">
-                            <div class="toolbox-info">
-                                Hiện <span>9 / 56</span> sản phẩm
-                            </div><!-- End .toolbox-info -->
-                        </div><!-- End .toolbox-left -->
+            <form asp-action="Index">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="toolbox">
+                            <div class="toolbox-left">
+                                <div class="toolbox-info">
+                                    @if (Model.TotalRecords > 0)
+                                    {
+                                        var startIndex = ((Model.PageIndex - 1) * Model.PageSize) + 1;
+                                        var endIndex = startIndex + Model.Items.Count - 1;
+                                        <div>
+                                            Từ <span>@startIndex</span>  - <span>@endIndex</span>/ <span>@Model.TotalRecords</span>
+                                        </div>
+                                    }
+                                </div><!-- End .toolbox-info -->
+                            </div><!-- End .toolbox-left -->
 
-                        <div class="toolbox-right">
-                            <div class="toolbox-sort">
-                                <label for="sortby">Sắp xếp theo:</label>
-                                <div class="select-custom">
-                                    <select name="sortby" id="sortby" class="form-control">
-                                        <option value="popularity" selected="selected">Theo giá</option>
-                                        <option value="rating">Most Rated</option>
-                                        <option value="date">Date</option>
-                                    </select>
-                                </div>
-                            </div><!-- End .toolbox-sort -->
-                        </div><!-- End .toolbox-right -->
-                    </div><!-- End .toolbox -->
+                            <div class="toolbox-right">
+                                <div class="toolbox-sort">
+                                    <label for="sortby">Sắp xếp theo:</label>
+                                    <div class="select-custom">
+                                        <select name="SortBy" onchange="this.form.submit()" id="sortby" class="form-control">
 
-                    <div class="products mb-3">
-                        <div class="row justify-content-center">
-                            <div class="col-6 col-md-4 col-lg-4">
-                                <div class="product product-7 text-center">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a asp-action="Detail">
-                                            <img src="/testImg.jpg" alt="Product image" class="product-image">
-                                        </a>
+                                            @if (ViewBag.CheckedSort != null && (int)ViewBag.CheckedSort == 1)
+                                            {
+                                                <option value="1" selected>Giá từ thấp đến cao</option>
+                                                <option value="2">Giá từ cao đến thấp</option>
+                                            }
+                                            else if (ViewBag.CheckedSort != null && (int)ViewBag.CheckedSort == 2)
+                                            {
+                                                <option value="1">Giá từ thấp đến cao</option>
+                                                <option value="2" selected>Giá từ cao đến thấp</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="1" selected>Giá từ thấp đến cao</option>
+                                                <option value="2">Giá từ cao đến thấp</option>
+                                            }
 
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
 
-                                        <div class="product-action">
-                                            <a asp-action="Index" asp-controller="Cart" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
+                                        </select>
+                                    </div>
+                                </div><!-- End .toolbox-sort -->
+                            </div><!-- End .toolbox-right -->
+                        </div><!-- End .toolbox -->
 
-                                    <div class="product-body">
-                                        
-                                        <h3 class="product-title"><a asp-action="Detail">Điện thoại Iphone 15 đen mới</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            21.990.000 VNĐ
-                                        </div><!-- End .product-price -->
-                                    @*     <div class="ratings-container">
+                        <div class="products mb-3">
+                            <div class="row justify-content-center">
+                                @if (Model.TotalRecords > 0)
+                                {
+                                    foreach (var item in Model.Items)
+                                    {
+                                        string url1 = null;
+                                        var lisstImg = item.ProductImg.OrderBy(x => x.SortOrder).ToList();
+
+                                        @foreach (var img in lisstImg)
+                                        {
+                                            if (img != null)
+                                            {
+                                                url1 = img.ImagePath;
+                                                break;
+                                            }
+                                        }
+                                        <div class="col-6 col-md-4 col-lg-4">
+                                            <div class="product product-7 text-center">
+                                                <figure class="product-media">
+                                                    @if (item.Discount > 0)
+                                                    {
+                                                        <span class="product-label label-circle label-sale" style="
+    font-size: 12px;
+">-@item.Discount %</span>
+                                                    }
+                                                    <a asp-action="Detail" asp-route-Id="@item.Id">
+                                                        <img style="
+    width: 318px;
+    height: 318px;
+    object-fit: cover;
+" src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
+                                                    </a>
+                                                    <div class="product-action">
+                                                        <a asp-action="Index" asp-controller="Cart" class="btn-product btn-cart"><span>Thêm vào giỏ hàng</span></a>
+                                                    </div><!-- End .product-action -->
+                                                </figure><!-- End .product-media -->
+
+                                                <div class="product-body">
+                                                    <div class="product-cat">
+                                                        <a asp-action="Detail" asp-controller="Product" asp-route-id="@item.Id">@item.CategoryName</a>
+                                                    </div><!-- End .product-cat -->
+                                                    <h3 class="product-title"><a asp-action="Detail">@item.ProductName</a></h3><!-- End .product-title -->
+                                                    <div class="product-price">
+                                                        @{
+                                                            var price = Convert.ToDouble(item.Options.FirstOrDefault().OptionPrice);
+                                                        }
+                                                        @if (item.Discount > 0)
+                                                        {
+                                                            var newPrice = price - (price * (@item.Discount / 100));
+                                                            <span class="new-price">
+                                                                @String.Format("{0:n0}", newPrice)
+                                                                VNĐ
+                                                            </span>
+                                                            <span class="old-price">@String.Format("{0:n0}", price )VNĐ</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="new-price">
+                                                                @String.Format("{0:n0}", price)
+                                                                VNĐ
+                                                            </span>
+                                                        }
+                                                    </div><!-- End .product-price -->
+                                                    @*     <div class="ratings-container">
                                             <div class="ratings">
-                                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
+                                            <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
                                             </div><!-- End .ratings -->
                                             <span class="ratings-text">( 2 Reviews )</span>
-                                        </div><!-- End .rating-container --> *@
+                                            </div><!-- End .rating-container --> *@
 
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
+                                                    <div class="product-nav product-nav-thumbs">
+                                                        @foreach (var item1 in lisstImg)
+                                                        {
+                                                            <a href="#" class="active">
+                                                                <img src="@Configuration["BaseAddress"]/user-content/product/@item1.ImagePath" alt="product desc">
+                                                            </a>
+                                                        }
+                                                    </div><!-- End .product-nav -->
+                                                </div><!-- End .product-body -->
+                                            </div><!-- End .product -->
+                                        </div>
 
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-lg-4 -->
-                            <div class="col-6 col-md-4 col-lg-4">
-                                <div class="product product-7 text-center">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a href="product.html">
-                                            <img src="/testImg.jpg" alt="Product image" class="product-image">
-                                        </a>
+                                        <!-- End .col-sm-6 col-lg-4 -->
+                                    }
+                                }
 
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
+                            </div><!-- End .row -->
+                        </div><!-- End .products -->
 
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
+                        <nav aria-label="Page navigation">
+                            @await Component.InvokeAsync("Pager", Model)
+                        </nav>
+                    </div><!-- End .col-lg-9 -->
+                    <aside class="col-lg-3 order-lg-first">
+                        <div class="sidebar sidebar-shop">
+                            <div class="widget widget-clean">
+                                <label>Bộ lọc:</label>
+                                <a asp-action="Index" asp-controller="Product" asp-route-typeClear="0" onclick="reloadAndReset()" class="sidebar-filter-clear">Clear</a>
+                            </div><!-- End .widget widget-clean -->
 
-                                    <div class="product-body">
-                                        
-                                        <h3 class="product-title"><a href="product.html">Điện thoại Iphone 15 đen mới</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            21.990.000 VNĐ
-                                        </div><!-- End .product-price -->
-                                    @*     <div class="ratings-container">
-                                            <div class="ratings">
-                                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                            </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 2 Reviews )</span>
-                                        </div><!-- End .rating-container --> *@
+                            <div class="widget widget-collapsible">
+                                <h3 class="widget-title">
+                                    <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
+                                        Danh mục
+                                    </a>
+                                </h3><!-- End .widget-title -->
 
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
+                                <div class="collapse show" id="widget-1">
+                                    <div class="widget-body">
+                                        <div class="filter-items filter-items-count">
 
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-lg-4 -->
-                            <div class="col-6 col-md-4 col-lg-4">
-                                <div class="product product-7 text-center">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a href="product.html">
-                                            <img src="/testImg.jpg" alt="Product image" class="product-image">
-                                        </a>
+                                            @foreach (var item in (List<CategoryViewModels>)ViewBag.Categories)
+                                            {
+                                                <div class="filter-item">
+                                                    <div class="custom-control custom-checkbox">
+                                                        @if (ViewBag.CheckedCategory != null && (int)ViewBag.CheckedCategory == item.Id)
+                                                        {
+                                                            <input type="radio" name="CategoryId" onchange="this.form.submit()" checked class="custom-control-input" value="@item.Id" id="cat-@item.Id">
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="radio" name="CategoryId" onchange="this.form.submit()" class="custom-control-input" value="@item.Id" id="cat-@item.Id">
+                                                        }
+                                                        <label class="custom-control-label" for="cat-@item.Id">@item.CategoryName </label>
+                                                    </div><!-- End .custom-checkbox -->
+                                                </div>
+                                                <!-- End .filter-item -->
+                                            }
+                                        </div><!-- End .filter-items -->
+                                    </div><!-- End .widget-body -->
+                                </div><!-- End .collapse -->
+                            </div><!-- End .widget -->
+                            <div class="widget widget-collapsible">
+                                <h3 class="widget-title">
+                                    <a data-toggle="collapse" href="#widget-4" role="button" aria-expanded="true" aria-controls="widget-4">
+                                        Thương hiệu
+                                    </a>
+                                </h3><!-- End .widget-title -->
 
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
+                                <div class="collapse show" id="widget-4">
+                                    <div class="widget-body">
+                                        <div class="filter-items">
 
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
+                                            @foreach (var item in (List<Brand>)ViewBag.Brand)
+                                            {
+                                                <div class="filter-item">
+                                                    <div class="custom-control custom-checkbox">
+                                                        @if (ViewBag.CheckedBrand != null && (int)ViewBag.CheckedBrand == item.id)
+                                                        {
+                                                            <input type="radio" name="BrandId" checked class="custom-control-input" value="@item.id" id="brand-@item.id">
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="radio" name="BrandId" onchange="this.form.submit()" class="custom-control-input" value="@item.id" id="brand-@item.id">
+                                                        }
+                                                        <label class="custom-control-label" for="brand-@item.id">@item.BrandName </label>
+                                                    </div><!-- End .custom-checkbox -->
+                                                </div>
+                                                <!-- End .filter-item -->
+                                            }
+                                        </div><!-- End .filter-items -->
 
-                                    <div class="product-body">
-                                        
-                                        <h3 class="product-title"><a href="product.html">Điện thoại Iphone 15 đen mới</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            21.990.000 VNĐ
-                                        </div><!-- End .product-price -->
-                                    @*     <div class="ratings-container">
-                                            <div class="ratings">
-                                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                            </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 2 Reviews )</span>
-                                        </div><!-- End .rating-container --> *@
+                                    </div><!-- End .widget-body -->
+                                </div><!-- End .collapse -->
+                            </div><!-- End .widget -->
 
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
+                            <div class="widget widget-collapsible">
+                                <h3 class="widget-title">
+                                    <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
+                                        Price
+                                    </a>
+                                </h3><!-- End .widget-title -->
 
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-lg-4 -->
-                            <div class="col-6 col-md-4 col-lg-4">
-                                <div class="product product-7 text-center">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a href="product.html">
-                                            <img src="/testImg.jpg" alt="Product image" class="product-image">
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        
-                                        <h3 class="product-title"><a href="product.html">Điện thoại Iphone 15 đen mới</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            21.990.000 VNĐ
-                                        </div><!-- End .product-price -->
-                                    @*     <div class="ratings-container">
-                                            <div class="ratings">
-                                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                            </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 2 Reviews )</span>
-                                        </div><!-- End .rating-container --> *@
-
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-lg-4 -->
-                            <div class="col-6 col-md-4 col-lg-4">
-                                <div class="product product-7 text-center">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a href="product.html">
-                                            <img src="/testImg.jpg" alt="Product image" class="product-image">
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        
-                                        <h3 class="product-title"><a href="product.html">Điện thoại Iphone 15 đen mới</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            21.990.000 VNĐ
-                                        </div><!-- End .product-price -->
-                                    @*     <div class="ratings-container">
-                                            <div class="ratings">
-                                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                            </div><!-- End .ratings -->
-                                            <span class="ratings-text">( 2 Reviews )</span>
-                                        </div><!-- End .rating-container --> *@
-
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-lg-4 -->
-                            <div class="col-6 col-md-4 col-lg-4">
-                                <div class="product product-7 text-center">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a href="product.html">
-                                            <img src="/testImg.jpg" alt="Product image" class="product-image">
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                                        </div><!-- End .product-action-vertical -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-
-                                        <h3 class="product-title"><a href="product.html">Điện thoại Iphone 15 đen mới</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            21.990.000 VNĐ
-                                        </div><!-- End .product-price -->
-                                        @*     <div class="ratings-container">
-                                        <div class="ratings">
-                                        <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                                        </div><!-- End .ratings -->
-                                        <span class="ratings-text">( 2 Reviews )</span>
-                                        </div><!-- End .rating-container --> *@
-
-                                        <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-
-                                            <a href="#">
-                                                <img src="/testImg.jpg" alt="product desc">
-                                            </a>
-                                        </div><!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-lg-4 -->
-                        </div><!-- End .row -->
-                    </div><!-- End .products -->
-
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link page-link-prev" href="#" aria-label="Previous" tabindex="-1" aria-disabled="true">
-                                    <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
-                                </a>
-                            </li>
-                            <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item-total">of 6</li>
-                            <li class="page-item">
-                                <a class="page-link page-link-next" href="#" aria-label="Next">
-                                    Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div><!-- End .col-lg-9 -->
-                <aside class="col-lg-3 order-lg-first">
-                    <div class="sidebar sidebar-shop">
-                        <div class="widget widget-clean">
-                            <label>Bộ lọc:</label>
-                            <a href="#" class="sidebar-filter-clear">Clear</a>
-                        </div><!-- End .widget widget-clean -->
-
-                        <div class="widget widget-collapsible">
-                            <h3 class="widget-title">
-                                <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
-                                    Danh mục
-                                </a>
-                            </h3><!-- End .widget-title -->
-
-                            <div class="collapse show" id="widget-1">
-                                <div class="widget-body">
-                                    <div class="filter-items filter-items-count">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="cat-1">
-                                                <label class="custom-control-label" for="cat-1">Điện thoại</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="cat-2">
-                                                <label class="custom-control-label" for="cat-2">Tai nghe</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-
-                                    </div><!-- End .filter-items -->
-                                </div><!-- End .widget-body -->
-                            </div><!-- End .collapse -->
-                        </div><!-- End .widget -->
-                        <div class="widget widget-collapsible">
-                            <h3 class="widget-title">
-                                <a data-toggle="collapse" href="#widget-4" role="button" aria-expanded="true" aria-controls="widget-4">
-                                    Thương hiệu
-                                </a>
-                            </h3><!-- End .widget-title -->
-
-                            <div class="collapse show" id="widget-4">
-                                <div class="widget-body">
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1">Samsung</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1">Samsung</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1">Apple</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1">Xiaomi</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                </div><!-- End .widget-body -->
-                            </div><!-- End .collapse -->
-                        </div><!-- End .widget -->
-
-                        <div class="widget widget-collapsible">
-                            <h3 class="widget-title">
-                                <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
-                                    Price
-                                </a>
-                            </h3><!-- End .widget-title -->
-
-                            <div class="collapse show" id="widget-5">
-                                <div class="widget-body">
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1"> Dưới 2.000.000đ</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1"> 2.000.000đ - 5.000.000đ</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1"> 5.000.000đ - 10.000.000đ</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                    <div class="filter-items">
-                                        <div class="filter-item">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="brand-1">
-                                                <label class="custom-control-label" for="brand-1"> Trên 10.000.000đ</label>
-                                            </div><!-- End .custom-checkbox -->
-                                        </div><!-- End .filter-item -->
-                                    </div><!-- End .filter-items -->
-                                </div><!-- End .widget-body -->
-                            </div><!-- End .collapse -->
-                        </div><!-- End .widget -->
-                    </div><!-- End .sidebar sidebar-shop -->
-                </aside><!-- End .col-lg-3 -->
-            </div><!-- End .row -->
+                                <div class="collapse show" id="widget-5">
+                                    <div class="widget-body">
+                                        <div class="filter-items">
+                                            <div class="filter-item">
+                                                <div class="custom-control custom-checkbox">
+                                                    @if ((int)ViewBag.CheckedPrice == 1)
+                                                    {
+                                                        <input type="radio" class="custom-control-input" checked value="1" name="Price" id="price-1">
+                                                    }else{
+                                                        <input type="radio" class="custom-control-input" onchange="this.form.submit()" value="1" name="Price" id="price-1">
+                                                    }
+                                                    <label class="custom-control-label" for="price-1"> Dưới 2.000.000đ</label>
+                                                </div><!-- End .custom-checkbox -->
+                                            </div><!-- End .filter-item -->
+                                        </div><!-- End .filter-items -->
+                                        <div class="filter-items">
+                                            <div class="filter-item">
+                                                <div class="custom-control custom-checkbox">
+                                                    @if ((int)ViewBag.CheckedPrice == 2)
+                                                    {
+                                                        <input type="radio" class="custom-control-input" checked value="2" name="Price" id="price-2">
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="radio" class="custom-control-input" onchange="this.form.submit()" value="2" name="Price" id="price-2">
+                                                    }
+                                                    <label class="custom-control-label" for="price-2"> 2.000.000đ - 5.000.000đ</label>
+                                                </div><!-- End .custom-checkbox -->
+                                            </div><!-- End .filter-item -->
+                                        </div><!-- End .filter-items -->
+                                        <div class="filter-items">
+                                            <div class="filter-item">
+                                                <div class="custom-control custom-checkbox">
+                                                    @if ((int)ViewBag.CheckedPrice == 3)
+                                                    {
+                                                        <input type="radio" checked class="custom-control-input" value="3" name="Price" id="price-3">
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="radio" class="custom-control-input" onchange="this.form.submit()" value="3" name="Price" id="price-3">
+                                                    }
+                                                    <label class="custom-control-label" for="price-3"> 5.000.000đ - 10.000.000đ</label>
+                                                </div><!-- End .custom-checkbox -->
+                                            </div><!-- End .filter-item -->
+                                        </div><!-- End .filter-items -->
+                                        <div class="filter-items">
+                                            <div class="filter-item">
+                                                <div class="custom-control custom-checkbox">
+                                                    @if ((int)ViewBag.CheckedPrice == 4)
+                                                    {
+                                                        <input type="radio" checked class="custom-control-input"  value="4" name="Price" id="price-4">
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="radio" class="custom-control-input" onchange="this.form.submit()" value="4" name="Price" id="price-4">
+                                                    }
+                                                    
+                                                    <label class="custom-control-label" for="price-4"> Trên 10.000.000đ</label>
+                                                </div><!-- End .custom-checkbox -->
+                                            </div><!-- End .filter-item -->
+                                        </div><!-- End .filter-items -->
+                                    </div><!-- End .widget-body -->
+                                </div><!-- End .collapse -->
+                            </div><!-- End .widget -->
+                        </div><!-- End .sidebar sidebar-shop -->
+                    </aside><!-- End .col-lg-3 -->
+                </div><!-- End .row -->
+            </form>
         </div><!-- End .container -->
     </div><!-- End .page-content -->
 </main><!-- End .main -->

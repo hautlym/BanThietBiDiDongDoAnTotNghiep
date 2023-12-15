@@ -18,6 +18,7 @@ using BanThietBiDiDongDATN.Application.Catalog.Products.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.Products.ProductImgs;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
 using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Asn1.Pkcs;
 
 namespace BanThietBiDiDongDATN.Application.Catalog.Products
 {
@@ -174,7 +175,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
 
         public async Task<ApiResult<List<ProductViewModel>>> GetAll()
         {
-            var query =await _context.products.Select(x => new ProductViewModel()
+            var query = await _context.products.Select(x => new ProductViewModel()
             {
                 Id = x.Id,
                 ProductName = x.ProductName,
@@ -196,10 +197,11 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
                 Quantity = x.productOptions.Select(x => x.Quantity).Sum(),
                 BeginDateDiscount = x.BeginDateDiscount,
                 ExpiredDateDiscount = x.ExpiredDateDiscount,
-                ProductImg = x.productImgs
+                ProductImg = x.productImgs,
+                CreateDate = x.CreateDate,
             }).ToListAsync();
             return new ApiSuccessResult<List<ProductViewModel>>(query);
-                        
+
         }
 
         public async Task<ApiResult<PageResult<ProductViewModel>>> GetAllPaging(GetProductPagingRequest request)
@@ -259,12 +261,13 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
             {
                 Id = product.Id,
                 ProductName = product.ProductName,
-                Options = product.productOptions.Select(x=> new ProductOptionViewModel() { 
-                    id=x.Id,
-                    ColorOption=x.ColorOption,
-                    SizeOption=x.SizeOption,
-                    OptionPrice=x.OptionPrice,
-                    Quantity=x.Quantity
+                Options = product.productOptions.Select(x => new ProductOptionViewModel()
+                {
+                    id = x.Id,
+                    ColorOption = x.ColorOption,
+                    SizeOption = x.SizeOption,
+                    OptionPrice = x.OptionPrice,
+                    Quantity = x.Quantity
                 }).ToList(),
                 Quantity = product.productOptions.Select(x => x.Quantity).Sum(),
                 ProductDescription = product.ProductDescription,
@@ -276,7 +279,8 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
                 BeginDateDiscount = product.BeginDateDiscount,
                 ExpiredDateDiscount = product.ExpiredDateDiscount,
                 isActived = product.isActived,
-                ProductImg = product.productImgs
+                ProductImg = product.productImgs,
+                CreateDate = product.CreateDate
             }).FirstOrDefaultAsync();
             //if(product == null) 
             //    throw new BTL_KTPMException("Can not find product");
@@ -320,7 +324,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
                 product.BeginDateDiscount = request.BeginDateDiscount;
                 product.ExpiredDateDiscount = request.ExpiredDateDiscount;
                 product.productImgs = _context.productImgs.Where(x => x.ProductId == product.Id).ToList();
-                var listOption1 = _context.productOptions.Where(x=>x.ProductId==request.Id).ToList();
+                var listOption1 = _context.productOptions.Where(x => x.ProductId == request.Id).ToList();
                 _context.productOptions.RemoveRange(listOption1);
                 var listOption = new List<ProductOption>();
                 foreach (var item in request.Options)
@@ -506,6 +510,101 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
             }
             _context.productImgs.Update(productImage);
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<ApiResult<PageResult<ProductViewModel>>> PublicGetAll(GetPublicProductRequest request)
+        {
+            var query = from product in _context.products
+                        join c in _context.Categories on product.CategoryId equals c.Id
+                        join p in _context.brands on product.BrandId equals p.id
+                        select new { product, c, p };
+            var test = _context.products.ToList();
+            if (request.BrandId != null && request.BrandId != 0)
+            {
+                query = query.Where(x => x.p.id == request.BrandId);
+            }
+            if (request.CategoryId != null && request.CategoryId != 0)
+            {
+                query = query.Where(x => x.c.Id == request.CategoryId);
+            }
+            if (!string.IsNullOrEmpty(request.Keywword))
+            {
+                query = query.Where(x => x.product.ProductName.Contains(request.Keywword));
+            }
+            
+            var data = await query.Select(x => new ProductViewModel()
+            {
+                Id = x.product.Id,
+                ProductName = x.product.ProductName,
+                ProductDescription = x.product.ProductDescription,
+                Options = x.product.productOptions.Select(x => new ProductOptionViewModel()
+                {
+                    id = x.Id,
+                    ColorOption = x.ColorOption,
+                    SizeOption = x.SizeOption,
+                    OptionPrice = x.OptionPrice,
+                    Quantity = x.Quantity
+                }).ToList(),
+                CategoryName = x.product.category.CategoryName,
+                Discount = x.product.Discount,
+                CategoryId = x.product.CategoryId,
+                BrandId = x.product.BrandId,
+                BrandName = x.product.brand.BrandName,
+                isActived = x.product.isActived,
+                Quantity = x.product.productOptions.Select(x => x.Quantity).Sum(),
+                BeginDateDiscount = x.product.BeginDateDiscount,
+                ExpiredDateDiscount = x.product.ExpiredDateDiscount,
+                ProductImg = x.product.productImgs
+            }).ToListAsync();
+          
+            if (request.Price != null && request.Price != 0)
+            {
+                switch (request.Price)
+                {
+                    case 1:
+                        data = data.Where(x => Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault()) < 2000000).ToList();
+                        break;
+                    case 2:
+                        data = data.Where(x => Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault()) > 2000000&&
+                        Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault()) < 5000000
+                        ).ToList();
+                        break;
+                    case 3:
+                        data = data.Where(x => Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault()) > 5000000 &&
+                        Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault()) < 10000000
+                        ).ToList();
+                        break;
+                    case 4:
+                        data = data.Where(x => Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault()) > 10000000 ).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if(request.SortBy != null && request.SortBy != 0)
+            {
+                switch (request.SortBy)
+                {
+                    case 1:
+                        data = data.OrderBy(x => Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault())).ToList();
+                        break;
+                    case 2:
+                        data = data.OrderByDescending(x => Convert.ToDouble(x.Options.OrderBy(x => x.OptionPrice).Select(x => x.OptionPrice).FirstOrDefault())).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            int totalRow = data.Count;
+             data = data.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToList();
+            var pageResult = new PageResult<ProductViewModel>
+            {
+                TotalRecords = totalRow,
+                Items = data,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
+            };
+            return new ApiSuccessResult<PageResult<ProductViewModel>>(pageResult);
         }
     }
 }

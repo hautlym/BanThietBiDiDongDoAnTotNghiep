@@ -17,5 +17,6 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
         Task<ApiResult<bool>> Delete(int productId);
         Task<ApiResult<List<ProductViewModel>>> GetAll();
         Task<ApiResult<PageResult<ProductViewModel>>> GetAllPaging(GetProductPagingRequest request);
+        Task<ApiResult<PageResult<ProductViewModel>>> PublicGetAll(GetPublicProductRequest request);
     }
 }

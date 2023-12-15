@@ -111,7 +111,7 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.OrderApiClient
             var client = _httpClient.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"api/Order");
+            var response = await client.GetAsync($"/api/Order/getAll");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
                 return JsonConvert.DeserializeObject<ApiSuccessResult<List<OrderViewModel>>> (body);
@@ -125,7 +125,7 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.OrderApiClient
             var client = _httpClient.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"api/Order/UserId/{UserId}");
+            var response = await client.GetAsync($"/api/Order/UserId/{UserId}");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
                 return JsonConvert.DeserializeObject<ApiSuccessResult<List<OrderViewModel>>>(body);

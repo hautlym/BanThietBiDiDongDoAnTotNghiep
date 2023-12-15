@@ -1,19 +1,25 @@
-﻿@{
+﻿@using Microsoft.Extensions.Configuration
+@using Newtonsoft.Json;
+@inject IConfiguration Configuration
+@model DeltailModel
+@{
     ViewData["Title"] = "Detail";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <style>
-    .selected{
+    .selected {
         border-color: #f8a928 !important;
         color: #f8a928;
     }
-    
+
     .colorProduct, .storageProduct {
         padding: 10px;
         font-size: 14px;
         border-radius: 6px;
         height: 30px !important;
         min-width: auto !important;
+        background-color: #fff;
         white-space: nowrap;
         display: flex !important;
         align-items: center;
@@ -23,12 +29,62 @@
         margin: 0 5px !important
     }
 </style>
+
 <main class="main">
+    
+    <script>
+        function changeOption(className, event) {
+            iconActive = document.querySelector("." + className + ".selected");
+            if (!iconActive.isEqualNode(event.target)) {
+                document.querySelector("." + className + ".selected").classList.remove("selected");
+                event.target.classList.add("selected");
+            }
+            
+            UpdateQuantity()
+        }
+    </script>
+
+    <script>
+        function UpdateQuantity() {
+            console.log("alo")
+            var size = document.querySelector(".storageProduct.selected");
+            var color = document.querySelector(".colorProduct.selected");
+            var quantityInput = document.querySelector("#qty")
+            var quantityRemaining = document.querySelector(".remaining-quantity")
+            var ProductPrice = document.querySelector(".product-price.price-detail")
+            var InputOption = document.querySelector("input[name='OptionId']")
+            var textColor = color.innerText
+            var textSize = size.innerText;
+            const VND = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+            });
+            var listOption = [
+        @foreach (var item in Model.Product.Options)
+        {
+            var text = $"['{@item.ColorOption}', '{@item.SizeOption}', {@item.Quantity},{@item.id},{@item.OptionPrice}],";
+            @Html.Raw(text)
+        }
+                 ];
+            for (var i = 0; i < listOption.length; i++) {
+                if (listOption[i][0] == textColor && listOption[i][1] == textSize) {
+                    InputOption.value = listOption[i][3];
+                    quantityRemaining.innerText = "(Còn " + listOption[i][2] + " sản phẩm )";
+                    quantityInput.max = listOption[i][2];
+                    ProductPrice.innerText = VND.format(listOption[i][4]);
+                    break;
+                }
+            }
+        }
+        window.addEventListener('load', function () {
+            UpdateQuantity();
+        });
+    </script>
     <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
         <div class="container d-flex align-items-center">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="#">Danh sách sản phẩm</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index">Danh sách sản phẩm</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Chi tiết sản phẩm</li>
             </ol>
         </div><!-- End .container -->
@@ -41,8 +97,20 @@
                     <div class="col-md-6">
                         <div class="product-gallery product-gallery-vertical">
                             <div class="row">
+                                @{
+                                    string url2 = null;
+                                    var lisstImg2 = Model.Product.ProductImg.OrderBy(x => x.SortOrder);
+                                    @foreach (var img in lisstImg2)
+                                    {
+                                        if (img != null)
+                                        {
+                                            url2 = img.ImagePath;
+                                            break;
+                                        }
+                                    }
+                                }
                                 <figure class="product-main-image">
-                                    <img id="product-zoom" src="/testImg.jpg" data-zoom-image="assets/images/products/single/1-big.jpg" alt="product image">
+                                    <img id="product-zoom" src="@Configuration["BaseAddress"]/user-content/product/@url2" data-zoom-image="@Configuration["BaseAddress"]/user-content/product/@url2" alt="product image">
 
                                     <a href="#" id="btn-product-gallery" class="btn-product-gallery">
                                         <i class="icon-arrows"></i>
@@ -50,21 +118,25 @@
                                 </figure><!-- End .product-main-image -->
 
                                 <div id="product-zoom-gallery" class="product-image-gallery">
-                                    <a class="product-gallery-item active" href="#" data-image="/testImg.jpg" data-zoom-image="/testImg.jpg">
-                                        <img src="/testImg.jpg" alt="product side">
-                                    </a>
 
-                                    <a class="product-gallery-item" href="#" data-image="/testImg.jpg" data-zoom-image="assets/images/products/single/2-big.jpg">
-                                        <img src="/testImg.jpg" alt="product cross">
-                                    </a>
-
-                                    <a class="product-gallery-item" href="#" data-image="/testImg.jpg" data-zoom-image="/testImg.jpg">
-                                        <img src="/testImg.jpg" alt="product with model">
-                                    </a>
-
-                                    <a class="product-gallery-item" href="#" data-image="/testImg.jpg" data-zoom-image="/testImg.jpg">
-                                        <img src="/testImg.jpg" alt="product back">
-                                    </a>
+                                    @foreach (var img in lisstImg2)
+                                    {
+                                        if (img != null)
+                                        {
+                                            if (img.ImagePath.Equals(url2))
+                                            {
+                                                <a class="product-gallery-item active" href="#" data-image="@Configuration["BaseAddress"]/user-content/product/@img.ImagePath" data-zoom-image="@Configuration["BaseAddress"]/user-content/product/@img.ImagePath">
+                                                    <img src="@Configuration["BaseAddress"]/user-content/product/@img.ImagePath" alt="product side">
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a class="product-gallery-item" href="#" data-image="@Configuration["BaseAddress"]/user-content/product/@img.ImagePath" data-zoom-image="@Configuration["BaseAddress"]/user-content/product/@img.ImagePath">
+                                                    <img src="@Configuration["BaseAddress"]/user-content/product/@img.ImagePath" alt="product cross">
+                                                </a>
+                                            }
+                                        }
+                                    }
                                 </div><!-- End .product-image-gallery -->
                             </div><!-- End .row -->
                         </div><!-- End .product-gallery -->
@@ -72,8 +144,7 @@
 
                     <div class="col-md-6">
                         <div class="product-details">
-                            <h1 class="product-title">IPhone 15 đen mới</h1><!-- End .product-title -->
-                           
+                            <h1 class="product-title">@Model.Product.ProductName</h1><!-- End .product-title -->
                             @* <div class="ratings-container">
                             <div class="ratings">
                             <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
@@ -84,50 +155,83 @@
                                 <label>Thương hiệu:</label>
 
                                 <div class="product-nav product-nav-thumbs">
-                                   Apple
+                                    @Model.Product.BrandName
                                 </div><!-- End .product-nav -->
                             </div><!-- End .details-filter-row -->
-                            <div class="product-price">
-                                21.990.000 VNĐ
+                            <div class="details-filter-row details-row-size">
+                                <label>Danh mục:</label>
+                                <div class="product-nav product-nav-thumbs">
+                                    @Model.Product.CategoryName
+                                </div><!-- End .product-nav -->
+                            </div><!-- End .details-filter-row -->
+                            <div class="product-price price-detail">
+                               
                             </div><!-- End .product-price -->
 
-                            <div class="product-content">
-                                <p>Đây là sản phẩm android mới ra mắt gần đây </p>
-                            </div><!-- End .product-content -->
+                            
 
                             <div class="details-filter-row details-row-size">
                                 <label>Màu  sắc:</label>
 
                                 <div class="product-nav product-nav-thumbs">
-                                    <label class="colorProduct selected">Đen</label>
-                                    <label class="colorProduct" >Trắng</label>
-                                    <label class="colorProduct" >Titan</label>
+                                    @{
+                                        int j = 0;
+                                        var option = Model.Product.Options;
+                                        var listCorlor = option.GroupBy(x => x.ColorOption).Select(x => new { Color = x.Key }).ToList();
+                                    }
+                                    @foreach (var item in listCorlor)
+                                    {
+                                        if (j == 0)
+                                        {
+                                            <button class="colorProduct selected" onclick="changeOption('colorProduct',event)">@item.Color</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="colorProduct" onclick="changeOption('colorProduct',event)">@item.Color</button>
+                                        }
+                                        j++;
+                                    }
                                 </div><!-- End .product-nav -->
                             </div><!-- End .details-filter-row -->
 
                             <div class="details-filter-row details-row-size">
                                 <label>Dung lượng:</label>
                                 <div class="product-nav product-nav-thumbs">
-                                    <label class="storageProduct selected">8/256GB</label>
-                                    <label class="storageProduct">16/512GB</label>
+                                    @{
+                                        int z = 0;
+                                        var listSize = option.GroupBy(x => x.SizeOption).Select(x => new { SizeOption = x.Key }).ToList();
+                                    }
+                                    @foreach (var item2 in listSize)
+                                    {
+                                        if (z == 0)
+                                        {
+                                            <button class="storageProduct selected" onclick="changeOption('storageProduct',event)">@item2.SizeOption</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="storageProduct" onclick="changeOption('storageProduct',event)">@item2.SizeOption</button>
+                                        }
+                                        z++;
+                                    }
                                 </div><!-- End .product-nav -->
 
                             </div><!-- End .details-filter-row -->
+                            <form>
+                                <div class="details-filter-row details-row-size">
+                                    <label for="qty">Số lượng:</label>
+                                    <div class="product-details-quantity ">
+                                        <input type="number" id="qty" class="form-control" name="Quantity" value="1" min="1" max="10" step="1" data-decimals="0" required>
 
-                            <div class="details-filter-row details-row-size">
-                                <label for="qty">Số lượng:</label>
-                                <div class="product-details-quantity ">
-                                    <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
-                                    
-                                </div><!-- End .product-details-quantity -->
-                                <i>  (còn 5 sản phẩm)</i>
-                            </div><!-- End .details-filter-row -->
+                                    </div><!-- End .product-details-quantity -->
+                                    <i class="remaining-quantity">  (còn 5 sản phẩm)</i>
+                                </div><!-- End .details-filter-row -->
 
-                            <div class="product-details-action">
-                                <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-
-                            </div><!-- End .product-details-action -->
-
+                                <div class="product-details-action">
+                                    <input type="hidden" name="OptionId" />
+                                    <input type="hidden" name="ProductId" value="@Model.Product.Id" />
+                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                </div><!-- End .product-details-action -->
+                            </form>
                         </div><!-- End .product-details -->
                     </div><!-- End .col-md-6 -->
                 </div><!-- End .row -->
@@ -138,20 +242,12 @@
                     <li class="nav-item">
                         <a class="nav-link active" id="product-desc-link" data-toggle="tab" href="#product-desc-tab" role="tab" aria-controls="product-desc-tab" aria-selected="true">Mô tả sản phẩm</a>
                     </li>
-                    
+
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="product-desc-tab" role="tabpanel" aria-labelledby="product-desc-link">
                         <div class="product-desc-content">
-                            <h3>Product Information</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. </p>
-                            <ul>
-                                <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit. </li>
-                                <li>Vivamus finibus vel mauris ut vehicula.</li>
-                                <li>Nullam a magna porttitor, dictum risus nec, faucibus sapien.</li>
-                            </ul>
-
-                            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. </p>
+                            @Html.Raw(Model.Product.ProductDescription)
                         </div><!-- End .product-desc-content -->
                     </div><!-- .End .tab-pane -->
                 </div><!-- End .tab-content -->
@@ -185,204 +281,89 @@
                                 }
                             }
                         }'>
-                <div class="product product-7 text-center">
-                    <figure class="product-media">
-                        <span class="product-label label-new">New</span>
-                        <a href="product.html">
-                            <img src="assets/images/products/product-4.jpg" alt="Product image" class="product-image">
-                        </a>
+                @foreach (var item in Model.RelatedProduct)
+                {
+                    string url1 = null;
+                    var lisstImg = item.ProductImg.OrderBy(x => x.SortOrder);
 
-                        <div class="product-action-vertical">
-                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                        </div><!-- End .product-action-vertical -->
-
-                        <div class="product-action">
-                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                        </div><!-- End .product-action -->
-                    </figure><!-- End .product-media -->
-
-                    <div class="product-body">
-                        <div class="product-cat">
-                            <a href="#">Women</a>
-                        </div><!-- End .product-cat -->
-                        <h3 class="product-title"><a href="product.html">Brown paperbag waist <br>pencil skirt</a></h3><!-- End .product-title -->
-                        <div class="product-price">
-                            $60.00
-                        </div><!-- End .product-price -->
-                        <div class="ratings-container">
-                            <div class="ratings">
-                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                            </div><!-- End .ratings -->
-                            <span class="ratings-text">( 2 Reviews )</span>
-                        </div><!-- End .rating-container -->
-
-                        <div class="product-nav product-nav-thumbs">
-                            <a href="#" class="active">
-                                <img src="assets/images/products/product-4-thumb.jpg" alt="product desc">
+                    @foreach (var img in lisstImg)
+                    {
+                        if (img != null)
+                        {
+                            url1 = img.ImagePath;
+                            break;
+                        }
+                    }
+                    <div class="product product-7 text-center">
+                        <figure class="product-media">
+                            @if (item.Discount > 0)
+                            {
+                                <span class="product-label label-circle label-sale" style="
+    font-size: 12px;
+">-@item.Discount %</span>
+                            }
+                            <a asp-action="Detail" asp-route-Id="@item.Id">
+                                <img style="
+    width: 318px;
+    height: 318px;
+    object-fit: cover;
+" src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                             </a>
-                            <a href="#">
-                                <img src="assets/images/products/product-4-2-thumb.jpg" alt="product desc">
-                            </a>
+                            <div class="product-action">
+                                <a asp-action="Index" asp-controller="Cart" class="btn-product btn-cart"><span>Thêm vào giỏ hàng</span></a>
+                            </div><!-- End .product-action -->
+                        </figure><!-- End .product-media -->
 
-                            <a href="#">
-                                <img src="assets/images/products/product-4-3-thumb.jpg" alt="product desc">
-                            </a>
-                        </div><!-- End .product-nav -->
-                    </div><!-- End .product-body -->
-                </div><!-- End .product -->
+                        <div class="product-body">
+                            <div class="product-cat">
+                                <a asp-action="Detail" asp-controller="Product" asp-route-id="@item.Id">@item.CategoryName</a>
+                            </div><!-- End .product-cat -->
+                            <h3 class="product-title"><a asp-action="Detail">@item.ProductName</a></h3><!-- End .product-title -->
+                            <div class="product-price">
+                                @{
+                                    var price = Convert.ToDouble(item.Options.FirstOrDefault().OptionPrice);
+                                }
+                                @if (item.Discount > 0)
+                                {
+                                    var newPrice = price - (price * (@item.Discount / 100));
+                                    <span class="new-price">
+                                        @String.Format("{0:n0}", newPrice)
+                                        VNĐ
+                                    </span>
+                                    <span class="old-price">@String.Format("{0:n0}", price )VNĐ</span>
+                                }
+                                else
+                                {
+                                    <span class="new-price">
+                                        @String.Format("{0:n0}", price)
+                                        VNĐ
+                                    </span>
+                                }
+                            </div><!-- End .product-price -->
+                            @*     <div class="ratings-container">
+                        <div class="ratings">
+                        <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
+                        </div><!-- End .ratings -->
+                        <span class="ratings-text">( 2 Reviews )</span>
+                        </div><!-- End .rating-container --> *@
 
-                <div class="product product-7 text-center">
-                    <figure class="product-media">
-                        <span class="product-label label-out">Out of Stock</span>
-                        <a href="product.html">
-                            <img src="assets/images/products/product-6.jpg" alt="Product image" class="product-image">
-                        </a>
+                            <div class="product-nav product-nav-thumbs">
+                                @foreach (var item1 in lisstImg)
+                                {
+                                    <a href="#" class="active">
+                                        <img src="@Configuration["BaseAddress"]/user-content/product/@item1.ImagePath" alt="product desc">
+                                    </a>
+                                }
+                            </div><!-- End .product-nav -->
+                        </div><!-- End .product-body -->
+                    </div>
 
-                        <div class="product-action-vertical">
-                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                        </div><!-- End .product-action-vertical -->
+                    <!-- End .product -->
+                    <!-- End .product -->
+                }
 
-                        <div class="product-action">
-                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                        </div><!-- End .product-action -->
-                    </figure><!-- End .product-media -->
 
-                    <div class="product-body">
-                        <div class="product-cat">
-                            <a href="#">Jackets</a>
-                        </div><!-- End .product-cat -->
-                        <h3 class="product-title"><a href="product.html">Khaki utility boiler jumpsuit</a></h3><!-- End .product-title -->
-                        <div class="product-price">
-                            <span class="out-price">$120.00</span>
-                        </div><!-- End .product-price -->
-                        <div class="ratings-container">
-                            <div class="ratings">
-                                <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                            </div><!-- End .ratings -->
-                            <span class="ratings-text">( 6 Reviews )</span>
-                        </div><!-- End .rating-container -->
-                    </div><!-- End .product-body -->
-                </div><!-- End .product -->
 
-                <div class="product product-7 text-center">
-                    <figure class="product-media">
-                        <span class="product-label label-top">Top</span>
-                        <a href="product.html">
-                            <img src="assets/images/products/product-11.jpg" alt="Product image" class="product-image">
-                        </a>
-
-                        <div class="product-action-vertical">
-                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                        </div><!-- End .product-action-vertical -->
-
-                        <div class="product-action">
-                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                        </div><!-- End .product-action -->
-                    </figure><!-- End .product-media -->
-
-                    <div class="product-body">
-                        <div class="product-cat">
-                            <a href="#">Shoes</a>
-                        </div><!-- End .product-cat -->
-                        <h3 class="product-title"><a href="product.html">Light brown studded Wide fit wedges</a></h3><!-- End .product-title -->
-                        <div class="product-price">
-                            $110.00
-                        </div><!-- End .product-price -->
-                        <div class="ratings-container">
-                            <div class="ratings">
-                                <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                            </div><!-- End .ratings -->
-                            <span class="ratings-text">( 1 Reviews )</span>
-                        </div><!-- End .rating-container -->
-
-                        <div class="product-nav product-nav-thumbs">
-                            <a href="#" class="active">
-                                <img src="assets/images/products/product-11-thumb.jpg" alt="product desc">
-                            </a>
-                            <a href="#">
-                                <img src="assets/images/products/product-11-2-thumb.jpg" alt="product desc">
-                            </a>
-
-                            <a href="#">
-                                <img src="assets/images/products/product-11-3-thumb.jpg" alt="product desc">
-                            </a>
-                        </div><!-- End .product-nav -->
-                    </div><!-- End .product-body -->
-                </div><!-- End .product -->
-
-                <div class="product product-7 text-center">
-                    <figure class="product-media">
-                        <a href="product.html">
-                            <img src="assets/images/products/product-10.jpg" alt="Product image" class="product-image">
-                        </a>
-
-                        <div class="product-action-vertical">
-                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                        </div><!-- End .product-action-vertical -->
-
-                        <div class="product-action">
-                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                        </div><!-- End .product-action -->
-                    </figure><!-- End .product-media -->
-
-                    <div class="product-body">
-                        <div class="product-cat">
-                            <a href="#">Jumpers</a>
-                        </div><!-- End .product-cat -->
-                        <h3 class="product-title"><a href="product.html">Yellow button front tea top</a></h3><!-- End .product-title -->
-                        <div class="product-price">
-                            $56.00
-                        </div><!-- End .product-price -->
-                        <div class="ratings-container">
-                            <div class="ratings">
-                                <div class="ratings-val" style="width: 0%;"></div><!-- End .ratings-val -->
-                            </div><!-- End .ratings -->
-                            <span class="ratings-text">( 0 Reviews )</span>
-                        </div><!-- End .rating-container -->
-                    </div><!-- End .product-body -->
-                </div><!-- End .product -->
-
-                <div class="product product-7 text-center">
-                    <figure class="product-media">
-                        <a href="product.html">
-                            <img src="assets/images/products/product-7.jpg" alt="Product image" class="product-image">
-                        </a>
-
-                        <div class="product-action-vertical">
-                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                            <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a>
-                        </div><!-- End .product-action-vertical -->
-
-                        <div class="product-action">
-                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                        </div><!-- End .product-action -->
-                    </figure><!-- End .product-media -->
-
-                    <div class="product-body">
-                        <div class="product-cat">
-                            <a href="#">Jeans</a>
-                        </div><!-- End .product-cat -->
-                        <h3 class="product-title"><a href="product.html">Blue utility pinafore denim dress</a></h3><!-- End .product-title -->
-                        <div class="product-price">
-                            $76.00
-                        </div><!-- End .product-price -->
-                        <div class="ratings-container">
-                            <div class="ratings">
-                                <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
-                            </div><!-- End .ratings -->
-                            <span class="ratings-text">( 2 Reviews )</span>
-                        </div><!-- End .rating-container -->
-                    </div><!-- End .product-body -->
-                </div><!-- End .product -->
             </div><!-- End .owl-carousel -->
         </div><!-- End .container -->
     </div><!-- End .page-content -->

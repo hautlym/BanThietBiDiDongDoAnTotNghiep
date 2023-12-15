@@ -26,6 +26,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             var categories = await _manageCategory.GetAllCategory();

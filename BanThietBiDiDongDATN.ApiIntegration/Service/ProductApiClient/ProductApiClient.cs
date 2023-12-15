@@ -140,7 +140,20 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
 
             return JsonConvert.DeserializeObject<ApiErrorResult<List<ProductViewModel>>>(body);
         }
-
+        public async Task<ApiResult<PageResult<ProductViewModel>>> PublicGetAll(GetPublicProductRequest request)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _httpClient.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.GetAsync($"/api/Product/publicPaging?keyword={request.Keywword}&PageIndex={request.PageIndex}&PageSize={request.PageSize}&CategoryId={request.CategoryId}&BrandId={request.BrandId}&Price={request.Price}&SortBy={request.SortBy}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<PageResult<ProductViewModel>>>(body);
+            }
+            return JsonConvert.DeserializeObject<ApiErrorResult<PageResult<ProductViewModel>>>(body);
+        }
         public async Task<ApiResult<PageResult<ProductViewModel>>> GetAllPaging(GetProductPagingRequest request)
         {
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");

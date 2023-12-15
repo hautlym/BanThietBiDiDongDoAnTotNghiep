@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using BanThietBiDiDongDoAn.Applications.Brands;
 using BanThietBiDiDongDATN.Application.Catalog.Brands.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.Commom;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BanThietBiDiDongDATN.BackendAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BrandController : ControllerBase
     {
         private readonly IManageBrand _manage;
@@ -21,6 +23,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             var brand = await _manage.GetAllBrand();

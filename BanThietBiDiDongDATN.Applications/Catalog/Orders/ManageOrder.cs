@@ -232,9 +232,22 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
             };
             return new ApiSuccessResult<PageResult<OrderViewModel>>(pageResult);
         }
-        public Task<ApiResult<List<OrderViewModel>>> getAllOrder()
+        public async Task<ApiResult<List<OrderViewModel>>> getAllOrder()
         {
-            throw new NotImplementedException();
+            var data =await _context.Orders.Select(x => new OrderViewModel()
+            {
+                Id = x.Id,
+                ShipName = x.ShipName,
+                ShipNumberPhone = x.ShipNumberPhone,
+                ShipAddress = x.ShipAddress,
+                ShipDescription = x.ShipDescription,
+                ShipEmail = x.ShipEmail,
+                OrderDate = x.OrderDate,
+                OrderDetails = x.OrderDetails,
+                typePayment = x.typePayment,
+                status = x.status,
+            }).ToListAsync();
+            return new ApiSuccessResult<List<OrderViewModel>>(data);
         }
 
         public async Task<ApiResult<OrderViewModel>> GetById(int OrderId)

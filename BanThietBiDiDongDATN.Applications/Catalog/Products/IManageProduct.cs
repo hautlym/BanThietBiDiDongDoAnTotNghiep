@@ -18,7 +18,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
         Task<ApiResult<bool>> Delete(int productId);
         Task<ApiResult<List<ProductViewModel>>> GetAll();
         Task<ApiResult<PageResult<ProductViewModel>>> GetAllPaging(GetProductPagingRequest request);
-
+        Task<ApiResult<PageResult<ProductViewModel>>> PublicGetAll(GetPublicProductRequest request);
         Task<int> AddImage(int productId, ProductImageCreateRequest request);
 
         Task<int> RemoveImage(int imageId);

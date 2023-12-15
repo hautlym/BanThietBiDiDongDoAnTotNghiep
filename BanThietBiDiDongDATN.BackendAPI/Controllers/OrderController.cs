@@ -26,7 +26,13 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
             var cart = await _manageOrder.GetAlllPaging(request);
             return Ok(cart);
         }
-
+        [HttpGet("getAll")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAll()
+        {
+            var cart = await _manageOrder.getAllOrder();
+            return Ok(cart);
+        }
         [HttpGet("UserId/{UserId}")]
         public async Task<IActionResult> GetByUserId(Guid UserId)
         {
