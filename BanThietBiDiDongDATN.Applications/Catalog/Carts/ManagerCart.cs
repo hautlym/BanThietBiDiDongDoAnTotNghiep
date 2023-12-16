@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,15 +21,30 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
         }
         public async Task<int> Create(CreateCartRequest request)
         {
-            var cart = new Cart()
+            try
             {
-                ProductId = request.ProductId,
-                AppUserId = request.UserId,
-                Quantity = request.Quantity,
-            };
-            _context.carts.Add(cart);
-            await _context.SaveChangesAsync();
-            return cart.Id;
+                var product = _context.products.Where(x => x.Id == request.ProductId).Select(x=>new { productOptions= x.productOptions, Discount = x.Discount }).FirstOrDefault();
+                if (request == null|| product==null)
+                {
+                    return -1;
+                }
+                var option = product.productOptions.Where(x => x.Id == request.OptionId).FirstOrDefault();
+                var cart = new Cart()
+                {
+                    OptionId = request.OptionId,
+                    ProductId = request.ProductId,
+                    AppUserId = request.UserId,
+                    Quantity = request.Quantity,
+                    Price = product.Discount > 0 ? ((Convert.ToDecimal(option.OptionPrice) - (Convert.ToDecimal(option.OptionPrice) * ((decimal)product.Discount / 100))))*request.Quantity : Convert.ToDecimal(option.OptionPrice)*request.Quantity
+                };
+                _context.carts.Add(cart);
+                await _context.SaveChangesAsync();
+                return cart.Id;
+            }catch(Exception ex)
+            {
+                return -1;
+            }
+            
         }
 
         public async Task<int> Delete(int CartId)
@@ -41,125 +57,131 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
 
         public async Task<List<CartViewModel>> GetAllCart()
         {
-            throw new NotImplementedException();
-            //var cart = from p in _context.products
-            //           join c in _context.carts on p.Id equals c.ProductId
-            //           join u in _context.appUsers on c.AppUserId equals u.Id
-            //           select new
-            //           {
-            //               UserName = u.FirstName + u.LastName,
-            //               CartId = c.Id,
-            //               p.ProductName,
-            //               p.ProductPrice,
-            //               p.Discount,
-            //               c.Quantity,
-            //               Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
-            //               u.Address,
-            //               ProductOriginal = p.ProductOriginalPrice,
-            //           };
+            var cart = from p in _context.products
+                       join c in _context.carts on p.Id equals c.ProductId
+                       join u in _context.appUsers on c.AppUserId equals u.Id
+                       join o in _context.productOptions on p.Id equals o.ProductId
+                       select new
+                       {
+                           UserName = u.FirstName + u.LastName,
+                           CartId = c.Id,
+                           ProductId = p.Id,
+                           ProductName = p.ProductName,
+                           Discount = p.Discount,
+                           Quantity = c.Quantity,
+                           optionColor = o.ColorOption,
+                           optionSize = o.SizeOption,
+                           ProductPrice = o.OptionPrice,
+                           totalPrice = c.Price,
+                           Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
+                       };
 
-            //var data = await cart.Select(x => new CartViewModel()
-            //{
-            //    id = x.CartId,
-            //    UserName = x.UserName,
-            //    Discount = x.Discount,
-            //    ProductNane = x.ProductName,
-            //    ProductPrice = x.ProductPrice,
-            //    ProductOriginal = x.ProductOriginal,
-            //    Quantity = x.Quantity,
-            //    ImgUrl = x.Img,
-            //    Address = x.Address
-            //}).ToListAsync();
-            //return data;
+            var data = await cart.Select(x => new CartViewModel()
+            {
+                id = x.CartId,
+                UserName = x.UserName,
+                Discount = x.Discount,
+                ProductNane = x.ProductName,
+                ProductPrice = Convert.ToDouble(x.ProductPrice),
+                ProductOriginal = x.Discount > 0 ? (Convert.ToDouble(x.ProductPrice) / (1 - (x.Discount / 100))) : Convert.ToDouble(x.ProductPrice),
+                Quantity = x.Quantity,
+                totalPrice = x.totalPrice.ToString(),
+                ImgUrl = x.Img,
+                ProductId = x.ProductId,
+                OptionColor = x.optionColor,
+                OptionSize = x.optionSize,
+            }).ToListAsync();
+            return data;
         }
 
         public async Task<List<CartViewModel>> GetAllCartByUserId(Guid UserId)
         {
-            throw new NotImplementedException();
-            //var cart = from p in _context.products
-            //           join c in _context.carts on p.Id equals c.ProductId
-            //           join u in _context.appUsers on c.AppUserId equals u.Id
-            //           select new
-            //           {
-            //               UserId = u.Id,
-            //               UserName = u.FirstName + u.LastName,
-            //               CartId = c.Id,
-            //               p.ProductName,
-            //               p.ProductPrice,
-            //               ProductOriginal = p.ProductOriginalPrice,
-            //               p.Discount,
-            //               c.Quantity,
-            //               Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
-            //               u.Address
-            //           };
+            var cart = from p in _context.products
+                       join c in _context.carts on p.Id equals c.ProductId
+                       join u in _context.appUsers on c.AppUserId equals u.Id
+                       join o in _context.productOptions on c.OptionId equals o.Id
+                       where u.Id == UserId
+                       select new
+                       {
+                           UserName = u.FirstName + u.LastName,
+                           CartId = c.Id,
+                           ProductName = p.ProductName,
+                           Discount = p.Discount,
+                           ProductId = p.Id,
+                           Quantity = c.Quantity,
+                           totalPrice = c.Price,
+                           optionColor = o.ColorOption,
+                           optionSize = o.SizeOption,
+                           ProductPrice = o.OptionPrice,
+                           Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
+                       };
 
-            //var data = await cart.Where(x => x.UserId == UserId).Select(x => new CartViewModel()
-            //{
-            //    id = x.CartId,
-            //    UserName = x.UserName,
-            //    Discount = x.Discount,
-            //    ProductNane = x.ProductName,
-            //    ProductPrice = x.ProductPrice,
-            //    ProductOriginal = x.ProductOriginal,
-            //    Quantity = x.Quantity,
-            //    ImgUrl = x.Img,
-            //    Address = x.Address
-            //}).ToListAsync();
-            //return data;
+            var data = await cart.Select(x => new CartViewModel()
+            {
+                id = x.CartId,
+                UserName = x.UserName,
+                Discount = x.Discount,
+                ProductNane = x.ProductName,
+                ProductPrice = Convert.ToDouble(x.ProductPrice),
+                ProductOriginal = x.Discount > 0 ? (Convert.ToDouble(x.ProductPrice) / (1 - (x.Discount / 100))) : Convert.ToDouble(x.ProductPrice),
+                Quantity = x.Quantity,
+                ImgUrl = x.Img,
+                totalPrice=x.totalPrice.ToString(),
+                OptionColor = x.optionColor,
+                OptionSize = x.optionSize,
+                ProductId = x.ProductId
+            }).ToListAsync();
+            return data;
         }
 
         public async Task<CartViewModel> GetById(int CartId)
         {
-            throw new NotImplementedException();
-            //var cart = from p in _context.products
-            //           //join c in _context.Carts on p.Id equals c.ProductId
-            //           join u in _context.appUsers on c.AppUserId equals u.Id
-            //           select new
-            //           {
-            //               UserId = u.Id,
-            //               UserName = u.FirstName + u.LastName,
-            //               CartId = c.Id,
-            //               p.ProductName,
-            //               p.ProductPrice,
-            //               p.Discount,
-            //               c.Quantity,
-            //               Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
-            //               u.Address,
-            //               Phone = u.PhoneNumber
-            //           };
+            var cart = from p in _context.products
+                       join c in _context.carts on p.Id equals c.ProductId
+                       join u in _context.appUsers on c.AppUserId equals u.Id
+                       join o in _context.productOptions on c.OptionId equals o.Id
+                       where c.Id == CartId
+                       select new
+                       {
+                           UserName = u.FirstName + u.LastName,
+                           CartId = c.Id,
+                           ProductName = p.ProductName,
+                           Discount = p.Discount,
+                           Quantity = c.Quantity,
+                           ProductId = p.Id,
+                           optionColor = o.ColorOption,
+                           optionSize = o.SizeOption,
+                           ProductPrice = o.OptionPrice,
+                           totalPrice = c.Price,
+                           Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
+                       };
 
-            //var data = await cart.Where(x => x.CartId == CartId).Select(x => new CartViewModel()
-            //{
-            //    id = x.CartId,
-            //    UserName = x.UserName,
-            //    Discount = x.Discount,
-            //    ProductNane = x.ProductName,
-            //    ProductPrice = x.ProductPrice,
-            //    Quantity = x.Quantity,
-            //    ImgUrl = x.Img,
-            //    Address = x.Address,
-            //    Phone = x.Phone
-
-            //}).FirstOrDefaultAsync();
-
-            //if (data != null)
-            //{
-            //    return data;
-            //}
-            //else
-            //{
-            //    return null;
-            //}
+            var data = await cart.Select(x => new CartViewModel()
+            {
+                id = x.CartId,
+                UserName = x.UserName,
+                Discount = x.Discount,
+                ProductNane = x.ProductName,
+                ProductPrice = Convert.ToDouble(x.ProductPrice),
+                ProductOriginal = x.Discount > 0 ? (Convert.ToDouble(x.ProductPrice) / (1 - (x.Discount / 100))) : Convert.ToDouble(x.ProductPrice),
+                Quantity = x.Quantity,
+                ImgUrl = x.Img,
+                totalPrice = x.totalPrice.ToString(),
+                OptionColor = x.optionColor,
+                OptionSize = x.optionSize,
+                ProductId = x.ProductId
+            }).FirstOrDefaultAsync();
+            return data;
         }
 
         public async Task<int> Update(UpdateCartRequest request)
         {
             var cart = await _context.carts.Where(x => x.Id == request.id).FirstOrDefaultAsync();
-            //if (cart == null) throw new BTL_KTPMException("Can not find product");
-
-            cart.ProductId = request.ProductId;
+            if (cart == null) 
+                return -1;
+            var originPrice = cart.Price / cart.Quantity;
+            cart.Price = originPrice*request.Quantity;
             cart.Quantity = request.Quantity;
-            cart.Price = request.Price;
             _context.Update(cart);
             return await _context.SaveChangesAsync();
         }

@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Login";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -10,11 +9,17 @@
     <div class="login-form">
         <form action="/Account/Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <label for="">Tài khoản</label>
-            <input type="text" name="UserName" id="" placeholder="Nhập tài khoản" required>
-            <label for="">Mật khẩu</label>
-            <input type="password" name="Password" id="" placeholder="Nhập mật khẩu" required>
-            <input type="submit" value="ĐĂNG NHẬP" class="login-submit">
+            <div class="form-group">
+                <label for="">Tài khoản</label>
+                <input type="text" name="UserName" class="form-control" id="" class="form-g" placeholder="Nhập tài khoản" required>
+            </div>
+            <div class="form-group">
+                <label for="">Mật khẩu</label>
+                <input type="password" name="Password" class="form-control" id="" placeholder="Nhập mật khẩu" required>
+            </div>
+            <div class="form-group row justify-content-center">
+                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+            </div>
         </form>
     </div>
     <a href="" class="forget-password">Quên mật khẩu ? </a>

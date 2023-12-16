@@ -80,8 +80,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.System
                 new Claim(ClaimTypes.Name, user.LastName),
                 new Claim(ClaimTypes.Surname, user.UserName),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.UserData,user.Avatar.ToString())
-
+                new Claim(ClaimTypes.UserData,user.Avatar!=null?user.Avatar.ToString():"")
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

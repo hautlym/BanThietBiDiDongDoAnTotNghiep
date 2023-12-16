@@ -28,6 +28,7 @@ using BanThietBiDiDongDATN.Application.Catalog.Vouchers;
 using BanThietBiDiDongDATN.Application.Catalog.Products;
 using Serilog;
 using BanThietBiDiDongDATN.Application.Catalog.Orders;
+using BanThietBiDiDongDATN.Application.Catalog.Carts;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -105,6 +106,7 @@ builder.Services.AddTransient<IManagePublicUser, ManagePublicUser>();
 builder.Services.AddTransient<IRolesService, RolesService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IManageProduct, ManageProduct>();
+builder.Services.AddTransient<IManageCart, ManagerCart>();
 builder.Services.AddTransient<IManageOrder, ManageOrder>();
 builder.Services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
 string issuer = "https://hello.api.com";

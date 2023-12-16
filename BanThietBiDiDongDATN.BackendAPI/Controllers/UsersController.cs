@@ -20,11 +20,13 @@ namespace BTL_KTPM.BackendAPI.Controllers
         private readonly IUserService _userService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IEmailSender _emailSender;
-        public UsersController(IUserService userService, UserManager<AppUser> userManager, IEmailSender emailSender)
+        private readonly IConfiguration _configuration;
+        public UsersController(IUserService userService, UserManager<AppUser> userManager, IEmailSender emailSender, IConfiguration configuration)
         {
             _userService = userService;
             _userManager = userManager;
             _emailSender = emailSender;
+            _configuration = configuration;
         }
         [HttpPost("login")]
         [AllowAnonymous]
@@ -60,6 +62,10 @@ namespace BTL_KTPM.BackendAPI.Controllers
             await _emailSender.SendEmailAsync(request.Email, "Xác thực Email", $"Hãy xác nhận địa chỉ email bằng cách <a href='{confirmationLink}'>Bấm vào đây</a>.");
             return Ok(result);
         }
+        //public string CreateVerificationLink(string userId, string token)
+        //{
+        //    return $"{new Uri(_configuration["BaseAddress"])}/VerifyEmail?userId={userId}&token={token}";
+        //}
         [HttpGet()]
         [AllowAnonymous]
         public async Task<IActionResult> VerifyEmail(string userId, string code)
@@ -82,7 +88,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
                 // Đăng nhập người dùng sau khi xác thực thành công
                 //await _signInManager.SignInAsync(user, isPersistent: false);
                 //return Redirect("~/"); // Hoặc trang đích sau khi xác thực
-                return Ok(new { Message = "Verify success" });
+                return Redirect($"https://localhost:7282/Account/ComfirmEmail");
             }
             else
             {

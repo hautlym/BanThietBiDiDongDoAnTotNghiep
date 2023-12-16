@@ -1,8 +1,124 @@
-﻿
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Carts;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model List<CartViewModel>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@if (TempData["failed"] != null)
+{
+    <script type="text/javascript">
+        toastr.error('@TempData["failed"]', "Thất bại", {
+            timeOut: 5e3,
+            closeButton: !0,
+            debug: !1,
+            newestOnTop: !0,
+            progressBar: !0,
+            positionClass: "toast-top-right",
+            preventDuplicates: !0,
+            onclick: null,
+            showDuration: "300",
+            hideDuration: "1000",
+            extendedTimeOut: "1000",
+            showEasing: "swing",
+            hideEasing: "linear",
+            showMethod: "fadeIn",
+            hideMethod: "fadeOut",
+            tapToDismiss: !1,
+        })
+    </script>
+}
+<script>
+   
+    function useVoucher(event) {
+        event.preventDefault();
+        var formData = {
+            voucher: $("input[name='voucherCode']").val(),
+        };
+        $.ajax({
+            url: '/Cart/ApplyVoucher',  // Đường dẫn API hoặc endpoint để xử lý cập nhật số lượng
+            type: 'GET',
+            data: { voucherCode: formData.voucher },
+            success: function (response) {
+                var voucherPercent = document.querySelector(".voucher-percent");
+                var voucherPrice = document.querySelector(".voucher-price");
+                var totalCart1 = document.querySelector(".temp-total")
+               // var voucherCode = document.querySelector("");
+                var finalTotal1 = document.querySelector(".final-total")
+                var persent = response.voucher?.discount
+                var price = parseFloat(totalCart1.innerText.replace(/[^0-9]/g, ''))
+                console.log(price)
+                finalTotal1.innerText = VND.format(price - (price * (persent/100)))
+                voucherPercent.innerText = persent + "%";
+                voucherPrice.innerText ="-"+ VND.format(price * (persent / 100));
+            },
+            error: function (error) {
+                alert(error)
+                
+            }
+        });
+        
+    }
+</script>
+<script>
+    
+    window.addEventListener('load', function () {
+        RenderCode();
+    });
+    const VND = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    });
+
+    function RenderCode() {
+        var listOption = [
+    @if (Model != null)
+    {
+        @foreach (var item in Model)
+        {
+            var text = $"[{@item.id},{@item.ProductPrice},{@item.Quantity}],";
+            @Html.Raw(text)
+        }
+
+    }
+                                 ];
+        for (var i = 0; i < listOption.length; i++) {
+            UpdatePriceCart(listOption[i][0], listOption[i][1])
+        }
+    }
+
+    function UpdatePriceCart(id, price, event) {
+
+        var quantityCart = document.querySelector(".quantity-" + id)
+        var totalItem = document.querySelector(".total-col.total-item-" + id)
+        var ListTotalItem = document.getElementsByClassName("total-col")
+        var totalCart = document.querySelector(".temp-total")
+        var finalTotal = document.querySelector(".final-total")
+        var newPirce = quantityCart.value * price;
+        var totalPrice = 0;
+        $.ajax({
+            url: '/Cart/ChangeQuantity',  // Đường dẫn API hoặc endpoint để xử lý cập nhật số lượng
+            type: 'POST',
+            data: { cartId: id, Quantity: quantityCart.value },
+            success: function (response) {
+                console.log("thành công")
+            },
+            error: function (error) {
+                console.error('Error updating quantity:', error);
+            }
+        });
+        console.log(ListTotalItem)
+        totalItem.innerText = VND.format(newPirce)
+        for (var i = 0; i < ListTotalItem.length; i++) {
+            var price = parseFloat(ListTotalItem[i].innerText.replace(/[^0-9]/g, ''))
+            totalPrice += price;
+        }
+        totalCart.innerText = VND.format(totalPrice)
+        finalTotal.innerText = VND.format(totalPrice)
+    }
+
+</script>
 <main class="main">
     <div class="page-header text-center" style="background-image: url('/clientApp/assets/images/page-header-bg.jpg')">
         <div class="container">
@@ -12,7 +128,7 @@
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
         <div class="container">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Trang chủ</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
             </ol>
         </div><!-- End .container -->
@@ -28,6 +144,7 @@
                                 <tr>
                                     <th>Sản phẩm</th>
                                     <th>Giá</th>
+                                    <th>Loại sản phẩm</th>
                                     <th>Số lượng</th>
                                     <th>Tổng tiền</th>
                                     <th></th>
@@ -35,60 +152,70 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td class="product-col">
-                                        <div class="product">
-                                            <figure class="product-media">
-                                                <a href="#">
-                                                    <img src="/testImg.jpg" alt="Product image">
-                                                </a>
-                                            </figure>
+                                @if (Model != null)
+                                {
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="product-col">
+                                                <div class="product">
+                                                    <figure class="product-media">
+                                                        <a asp-action="Detail" asp-controller="Product" asp-route-id="@item.ProductId">
+                                                            <img src="@Configuration["BaseAddress"]/user-content/product/@item.ImgUrl" alt="Product image">
+                                                        </a>
+                                                    </figure>
+                                                    <h3 class="product-title">
+                                                        <a asp-action="Detail" asp-controller="Product" asp-route-id="@item.ProductId">IPhone 15 đen mới</a>
+                                                    </h3><!-- End .product-title -->
+                                                </div><!-- End .product -->
+                                            </td>
+                                            <td class="price-col">
+                                                @if (item.Discount > 0)
+                                                {
+                                                    <span class="new-price price-@item.id">
+                                                        @String.Format("{0:n0}", @item.ProductPrice) đ
+                                                    </span>
+                                                    <span class="old-price">@String.Format("{0:n0}", @item.ProductOriginal) đ</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="new-price price-@item.id">
+                                                        @String.Format("{0:n0}", @item.ProductPrice) đ
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    Màu: @item.OptionColor
+                                                </div>
+                                                <div>
+                                                    Dung lượng: @item.OptionSize
+                                                </div>
+                                            </td>
 
-                                            <h3 class="product-title">
-                                                <a href="#">IPhone 15 đen mới</a>
-                                            </h3><!-- End .product-title -->
-                                        </div><!-- End .product -->
-                                    </td>
-                                    <td class="price-col">21.990.000đ</td>
-                                    <td class="quantity-col">
-                                        <div class="cart-product-quantity">
-                                            <input type="number" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
-                                        </div><!-- End .cart-product-quantity -->
-                                    </td>
-                                    <td class="total-col">21.990.000đ</td>
-                                    <td class="remove-col"><button class="btn-remove"><i class="icon-close"></i></button></td>
-                                </tr>
-                                <tr>
-                                    <td class="product-col">
-                                        <div class="product">
-                                            <figure class="product-media">
-                                                <a href="#">
-                                                    <img src="/testImg.jpg" alt="Product image">
-                                                </a>
-                                            </figure>
-
-                                            <h3 class="product-title">
-                                                <a href="#">IPhone 15 đen mới</a>
-                                            </h3><!-- End .product-title -->
-                                        </div><!-- End .product -->
-                                    </td>
-                                    <td class="price-col">21.990.000đ</td>
-                                    <td class="quantity-col">
-                                        <div class="cart-product-quantity">
-                                            <input type="number" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
-                                        </div><!-- End .cart-product-quantity -->
-                                    </td>
-                                    <td class="total-col">21.990.000đ</td>
-                                    <td class="remove-col"><button class="btn-remove"><i class="icon-close"></i></button></td>
-                                </tr>
+                                            <td class="quantity-col">
+                                                <div class="cart-product-quantity">
+                                                    <input type="number" onchange="UpdatePriceCart(@item.id,@item.ProductPrice,event)" class="form-control quantity-@item.id" value="@item.Quantity" min="1" max="10" step="1" data-decimals="0" required>
+                                                </div><!-- End .cart-product-quantity -->
+                                            </td>
+                                            <td class="total-col total-item-@item.id">@String.Format("{0:n0}", @item.totalPrice)</td>
+                                            <td class="remove-col">
+                                                <form asp-action="DeleteToCart" asp-controller="Cart" method="post" >
+                                                    <input type="hidden" name="CartId" value="@item.id">
+                                                    <button class="btn-remove" type="submit" ><i class="icon-close"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
                             </tbody>
                         </table><!-- End .table table-wishlist -->
 
                         <div class="cart-bottom">
                             <div class="cart-discount">
-                                <form action="#">
+                                <form id="formVoucher" onsubmit="useVoucher(event)">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" required placeholder="Mã giảm giá ...">
+                                        <input type="text" class="form-control" name="voucherCode" required placeholder="Mã giảm giá ...">
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
                                         </div><!-- .End .input-group-append -->
@@ -99,57 +226,38 @@
                     </div><!-- End .col-lg-9 -->
                     <aside class="col-lg-3">
                         <div class="summary summary-cart">
-                            <h3 class="summary-title">Cart Total</h3><!-- End .summary-title -->
+                            <h3 class="summary-title">Tổng đơn</h3><!-- End .summary-title -->
 
                             <table class="table table-summary">
                                 <tbody>
                                     <tr class="summary-subtotal">
-                                        <td>Subtotal:</td>
-                                        <td>$160.00</td>
+                                        <td>Tạm tính:</td>
+                                        <td class="temp-total">$160.00</td>
                                     </tr><!-- End .summary-subtotal -->
                                     <tr class="summary-shipping">
-                                        <td>Shipping:</td>
+                                        <td>Giảm giá:</td>
                                         <td>&nbsp;</td>
                                     </tr>
 
                                     <tr class="summary-shipping-row">
                                         <td>
                                             <div class="custom-control custom-radio">
-                                                <input type="radio" id="free-shipping" name="shipping" class="custom-control-input">
-                                                <label class="custom-control-label" for="free-shipping">Free Shipping</label>
+                                                <label class="custom-control-label" for="free-shipping">Mã giảm giá</label>
                                             </div><!-- End .custom-control -->
                                         </td>
-                                        <td>$0.00</td>
+                                        <td class="voucher-percent">$0.00</td>
                                     </tr><!-- End .summary-shipping-row -->
-
                                     <tr class="summary-shipping-row">
                                         <td>
                                             <div class="custom-control custom-radio">
-                                                <input type="radio" id="standart-shipping" name="shipping" class="custom-control-input">
-                                                <label class="custom-control-label" for="standart-shipping">Standart:</label>
+                                                <label class="custom-control-label" for="free-shipping">Số tiền giảm</label>
                                             </div><!-- End .custom-control -->
                                         </td>
-                                        <td>$10.00</td>
+                                        <td class="voucher-price">$0.00</td>
                                     </tr><!-- End .summary-shipping-row -->
-
-                                    <tr class="summary-shipping-row">
-                                        <td>
-                                            <div class="custom-control custom-radio">
-                                                <input type="radio" id="express-shipping" name="shipping" class="custom-control-input">
-                                                <label class="custom-control-label" for="express-shipping">Express:</label>
-                                            </div><!-- End .custom-control -->
-                                        </td>
-                                        <td>$20.00</td>
-                                    </tr><!-- End .summary-shipping-row -->
-
-                                    <tr class="summary-shipping-estimate">
-                                        <td>Estimate for Your Country<br> <a href="dashboard.html">Change address</a></td>
-                                        <td>&nbsp;</td>
-                                    </tr><!-- End .summary-shipping-estimate -->
-
                                     <tr class="summary-total">
                                         <td>Total:</td>
-                                        <td>$160.00</td>
+                                        <td class="final-total">$160.00</td>
                                     </tr><!-- End .summary-total -->
                                 </tbody>
                             </table><!-- End .table table-summary -->
@@ -157,7 +265,7 @@
                             <a href="checkout.html" class="btn btn-outline-primary-2 btn-order btn-block">Thanh toán</a>
                         </div><!-- End .summary -->
 
-                        <a href="category.html" class="btn btn-outline-dark-2 btn-block mb-3"><span>Tiếp tục mua sắm</span><i class="icon-refresh"></i></a>
+                        <a asp-action="Index" asp-controller="Product" class="btn btn-outline-dark-2 btn-block mb-3"><span>Tiếp tục mua sắm</span><i class="icon-refresh"></i></a>
                     </aside><!-- End .col-lg-3 -->
                 </div><!-- End .row -->
             </div><!-- End .container -->

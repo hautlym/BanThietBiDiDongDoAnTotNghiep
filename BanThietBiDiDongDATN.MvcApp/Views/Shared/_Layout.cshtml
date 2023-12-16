@@ -24,6 +24,7 @@
     <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" href="/clientApp/assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <link href="/toastr/css/toastr.min.css" rel="stylesheet">
     <!-- Plugins CSS File -->
 
     <link rel="stylesheet" href="/clientApp/assets/css/bootstrap.min.css">
@@ -91,7 +92,9 @@
                                 @if (!User.Identity.IsAuthenticated)
                                 {
                                     <p>Tài khoản</p>
-                                }else{
+                                }
+                                else
+                                {
                                     <a href="" class="account_icon">Xin chào @User.Identity.Name</a>
                                 }
                             </a>
@@ -100,16 +103,14 @@
                                 @if (User.Identity.IsAuthenticated)
                                 {
                                     <ul class="compare-products">
-                                        
+
                                         <li class="compare-product"> <h5 class="compare-product-title"><a asp-action="Index" asp-controller="Cart" style="font-size:16px;"> Giỏ hàng</a></h5></li>
                                         <li class="compare-product"> <h5 class="compare-product-title"><a asp-action="CheckOutDetail" asp-controller="Cart" style="font-size:16px;"> Đơn hàng</a></h5></li>
                                         <li class="compare-product">
-                                            <form action="/Account/Logout" method="post">
-                                                <h5 class="compare-product-title"><a asp-action="Logout" asp-controller="Account" style="font-size:16px;"> Đăng xuất</a></h5>
-                                            </form>
+                                            <h5 class="compare-product-title"><a asp-action="Logout" asp-controller="Account" style="font-size:16px;"> Đăng xuất</a></h5>
                                         </li>
                                     </ul>
-                                   
+
                                 }
                                 else
                                 {
@@ -279,6 +280,8 @@
     <script src="/clientApp/assets/js/main.js"></script>
     <script src="/clientApp/assets/js/demos/demo-4.js"></script>
     <script src="/clientApp/assets/js/nouislider.min.js"></script>
+    <script src="/toastr/js/toastr.init.js"></script>
+    <script src="/toastr/js/toastr.min.js"></script>
 </body>
 
 

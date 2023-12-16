@@ -3,11 +3,11 @@
     margin: 20px 10px 0;
 }
 
-label {
+/*label {
     display: block;
     font-size: 20px;
-}
-
+}*/
+/*
 input {
     width: 100%;
     margin: 10px 0 30px;
@@ -18,7 +18,7 @@ input {
     outline: none;
     border: none;
 }
-
+*/
 .login-submit {
     background-color: black;
     color: white;

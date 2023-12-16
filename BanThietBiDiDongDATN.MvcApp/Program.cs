@@ -1,9 +1,11 @@
 using BanThietBiDiDongDATN.ApiIntegration.Service.BrandApiClient;
+using BanThietBiDiDongDATN.ApiIntegration.Service.CartApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.CategoryApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.OrderApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.UserApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.VoucherApiClient;
+using BTL_KTPM.ApiIntegration.Service.CartApiClient;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,11 +21,12 @@ builder.Services.AddTransient<IBrandApiClient, BrandApiClient>();
 builder.Services.AddTransient<IVoucherApiClient, VoucherApiClient>();
 builder.Services.AddTransient<IProductApiClient, ProductApiClient>();
 builder.Services.AddTransient<IOrderService, OrderService>();
+builder.Services.AddTransient<ICartApiClient, CartApiClient>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Login/Index/";
+        options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/User/Forbidden/";
     });
 builder.Services.AddSession(options =>

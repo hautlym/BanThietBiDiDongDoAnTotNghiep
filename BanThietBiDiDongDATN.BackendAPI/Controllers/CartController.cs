@@ -1,0 +1,81 @@
+﻿using BanThietBiDiDongDATN.Application.Catalog.Carts;
+using BanThietBiDiDongDATN.Application.Catalog.Carts.Dtos;
+using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace BanThietBiDiDongDATN.BackendAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CartController : ControllerBase
+    {
+        private readonly IManageCart _manageCart;
+
+        public CartController(IManageCart manageCart)
+        {
+            _manageCart = manageCart;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var cart = await _manageCart.GetAllCart();
+            return Ok(cart);
+        }
+
+        [HttpGet("UserId/{UserId}")]
+        public async Task<IActionResult> GetByUserId(Guid UserId)
+        {
+            var cart = await _manageCart.GetAllCartByUserId(UserId);
+            if (cart.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(cart);
+        }
+
+        [HttpGet("{CartId}")]
+        public async Task<IActionResult> GetbyId(int CartId)
+        {
+            var category = await _manageCart.GetById(CartId);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(category);
+            }
+        }
+
+        [HttpPost("add_cart")]
+        public async Task<IActionResult> Create([FromBody] CreateCartRequest request)
+        {
+            var result = await _manageCart.Create(request);
+            if (result == 0)
+                return BadRequest(new ApiErrorResult<bool>("Lỗi"));
+            var category = await _manageCart.GetById(result);
+            return Ok(new ApiSuccessResult<bool>());
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(UpdateCartRequest request)
+        {
+            var Result = await _manageCart.Update(request);
+            if (Result == 0)
+                return BadRequest();
+            return Ok();
+        }
+
+        [HttpDelete("deleteCart/{CartID}")]
+        public async Task<IActionResult> Delete(int CartID)
+        {
+            var Result = await _manageCart.Delete(CartID);
+            if (Result == 0)
+                return BadRequest();
+
+            return Ok();
+        }
+    }
+}

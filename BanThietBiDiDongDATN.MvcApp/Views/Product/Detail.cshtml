@@ -8,6 +8,7 @@
 }
 
 <style>
+
     .selected {
         border-color: #f8a928 !important;
         color: #f8a928;
@@ -31,8 +32,31 @@
 </style>
 
 <main class="main">
-    
+    @if (TempData["failed"] != null)
+    {
+        <script type="text/javascript">
+            toastr.error('@TempData["failed"]', "Thất bại", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
     <script>
+                
         function changeOption(className, event) {
             iconActive = document.querySelector("." + className + ".selected");
             if (!iconActive.isEqualNode(event.target)) {
@@ -66,14 +90,22 @@
             @Html.Raw(text)
         }
                  ];
+            var flag = false;
             for (var i = 0; i < listOption.length; i++) {
                 if (listOption[i][0] == textColor && listOption[i][1] == textSize) {
+                    console.log(textColor, textSize)
                     InputOption.value = listOption[i][3];
                     quantityRemaining.innerText = "(Còn " + listOption[i][2] + " sản phẩm )";
                     quantityInput.max = listOption[i][2];
                     ProductPrice.innerText = VND.format(listOption[i][4]);
+                    flag = true;
                     break;
                 }
+            }
+            if (!flag) {
+                InputOption.value = 0;
+                quantityRemaining.innerText = "(Còn 0 sản phẩm )";
+                quantityInput.max = 0;
             }
         }
         window.addEventListener('load', function () {
@@ -100,7 +132,7 @@
                                 @{
                                     string url2 = null;
                                     var lisstImg2 = Model.Product.ProductImg.OrderBy(x => x.SortOrder);
-                                    @foreach (var img in lisstImg2)
+                                            @foreach (var img in lisstImg2)
                                     {
                                         if (img != null)
                                         {
@@ -168,8 +200,6 @@
                                
                             </div><!-- End .product-price -->
 
-                            
-
                             <div class="details-filter-row details-row-size">
                                 <label>Màu  sắc:</label>
 
@@ -216,7 +246,7 @@
                                 </div><!-- End .product-nav -->
 
                             </div><!-- End .details-filter-row -->
-                            <form>
+                            <form asp-action="AddToCart" asp-controller="Cart">
                                 <div class="details-filter-row details-row-size">
                                     <label for="qty">Số lượng:</label>
                                     <div class="product-details-quantity ">
@@ -229,7 +259,7 @@
                                 <div class="product-details-action">
                                     <input type="hidden" name="OptionId" />
                                     <input type="hidden" name="ProductId" value="@Model.Product.Id" />
-                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                    <button type="submit" class="btn-product btn-cart"><span>add to cart</span></button>
                                 </div><!-- End .product-details-action -->
                             </form>
                         </div><!-- End .product-details -->
@@ -310,7 +340,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                             </a>
                             <div class="product-action">
-                                <a asp-action="Index" asp-controller="Cart" class="btn-product btn-cart"><span>Thêm vào giỏ hàng</span></a>
+                                <a asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart"><span>Thêm vào giỏ hàng</span></a>
                             </div><!-- End .product-action -->
                         </figure><!-- End .product-media -->
 

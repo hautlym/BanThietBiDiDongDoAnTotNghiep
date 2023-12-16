@@ -25,7 +25,6 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
         {
             return View();
         }
-        [HttpPost]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -66,6 +65,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             return View();
         }
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
             if (!ModelState.IsValid)
@@ -77,7 +77,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                 ModelState.AddModelError("", "Vui lòng kiểm tra thông tin");
                 return View();
             }
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("VerifyEmail", "Account");
         }
         private ClaimsPrincipal ValidateToken(string jwtToken)
         {
@@ -98,6 +98,11 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
         }
         [HttpGet]
         public IActionResult VerifyEmail()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult ComfirmEmail()
         {
             return View();
         }

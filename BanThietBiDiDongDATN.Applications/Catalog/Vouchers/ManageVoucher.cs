@@ -148,7 +148,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Vouchers
             var item = await _context.vouchers.Where(x => x.Id == request.Id).FirstOrDefaultAsync();
             if (item == null)
                 return new ApiErrorResult<bool>("voucher không tồn tại");
-            item.VoucherCode = request.VoucherCode;
+            item.VoucherName = request.VoucherName;
             item.VoucherCode = request.VoucherCode;
             item.BeginDate = request.BeginDate;
             item.ExpiredDate = request.ExpiredDate;
