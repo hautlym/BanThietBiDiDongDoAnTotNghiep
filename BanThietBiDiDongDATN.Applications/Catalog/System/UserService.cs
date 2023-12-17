@@ -88,7 +88,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.System
             var token = new JwtSecurityToken(_config["Tokens:Issuer"],
                 _config["Tokens:Issuer"],
                 claim,
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.Now.AddDays(3),
                 signingCredentials: creds);
 
             return new ApiSuccessResult<string>(new JwtSecurityTokenHandler().WriteToken(token));

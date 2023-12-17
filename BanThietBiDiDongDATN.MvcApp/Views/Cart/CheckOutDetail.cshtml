@@ -1,0 +1,179 @@
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos;
+@using BanThietBiDiDongDATN.Data.Enums;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model List<OrderViewModel>
+@{
+    ViewData["Title"] = "CheckOutDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}<style>
+     tr:first-child, th:first-child {
+         width: 5%
+     }
+
+     tr:nth-last-child(2), td:nth-last-child(2) {
+         width: 20%
+     }
+
+     tr:nth-last-child(3), td:nth-last-child(3) {
+         width: 20%
+     }
+     tr:nth-child(2), td:nth-child(2) {
+         width: 20%
+     }
+
+     tr:nth-child(3), td:nth-child(3) {
+         width: 10%
+     }
+
+     tr:nth-child(4), td:nth-child(4) {
+         width: 20%
+     }
+
+     tr:nth-child(5), td:nth-child(5) {
+         width: 20%
+     }
+     tr:last-child, th:last-child {
+         width: 10%
+     }
+</style>
+<main class="main">
+    <div class="page-header text-center" style="background-image: url('/clientApp/assets/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title">Đơn hàng</h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">đơn hàng</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav><!-- End .breadcrumb-nav -->
+
+    <div class="page-content">
+        <div class="cart">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-cart table-mobile">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên người nhận</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Thanh toán</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            @{
+                                int i = 1;
+                            }
+                            <tbody>
+                                @if (Model != null)
+                                {
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @i
+                                                @{
+                                                    i++;
+                                                }
+                                            </td>
+                                            <td >
+                                                @item.ShipName - @item.ShipNumberPhone<br>
+                                                @item.ShipAddress
+                                            </td>
+                                          
+                                            <td>
+                                                @String.Format("{0:n0}", item.OrderDetails.Select(x=>x.Price).Sum()) VNĐ
+                                            </td>
+
+                                            <td >
+                                                @item.OrderDate
+                                            </td>
+                                            <td>
+
+                                                @item.typePayment
+                                            </td>
+                                            <td>
+                                                @foreach (var status1 in Enum.GetValues(typeof(OrderStatus)))
+                                                {
+                                                    if (item.status == (OrderStatus)status1)
+                                                    {
+                                                        if (item.status == OrderStatus.Complete)
+                                                        {
+                                                            <span class="badge badge-success px-2">@EnumExtensions.GetEnumMemberValue((OrderStatus)status1)</span>
+                                                        }
+                                                        else if (item.status == OrderStatus.Pending)
+                                                        {
+                                                            <span class="badge badge-primary px-2">@EnumExtensions.GetEnumMemberValue((OrderStatus)status1)</span>
+                                                        }
+                                                        else if (item.status == OrderStatus.Shipping)
+                                                        {
+                                                            <span class="badge badge-warning px-2">@EnumExtensions.GetEnumMemberValue((OrderStatus)status1)</span>
+                                                        }
+                                                        else if (item.status == OrderStatus.Shipped)
+                                                        {
+                                                            <span class="badge badge-info px-2">@EnumExtensions.GetEnumMemberValue((OrderStatus)status1)</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-danger px-2">@EnumExtensions.GetEnumMemberValue((OrderStatus)status1)</span>
+                                                        }
+                                                    }
+                                                }
+                                            </td>
+                                            <td >
+                                                @if (item.status == OrderStatus.Shipped)
+                                                {
+                                                    <form asp-action="ChangeStatus" asp-controller="Cart" method="post" class="mb-1">
+                                                        <input type="hidden" name="OrderId" value="@item.Id">
+                                                        <input type="hidden" name="status" value="@OrderStatus.Complete" />
+                                                        <button type="submit" class="btn btn-primary">Xác nhận nhận hàng</button>
+                                                    </form>
+                                                }else{
+                                                    <form asp-action="ChangeStatus" asp-controller="Cart" method="post" class="mb-1">
+                                                        <input type="hidden" name="OrderId" value="@item.Id">
+                                                        <input type="hidden" name="status" value="@OrderStatus.Complete" />
+                                                        <button type="submit" disabled class="btn btn-primary">Xác nhận nhận hàng</button>
+                                                    </form>
+                                                }
+                                                @if (item.status == OrderStatus.Complete)
+                                                {
+                                                    <form asp-action="ChangeStatus" asp-controller="Cart" method="post">
+                                                        <input type="hidden" name="OrderId" value="@item.Id">
+                                                        <input type="hidden" name="status" value="@OrderStatus.Cancel" />
+                                                        <button type="submit" disabled class="btn btn-primary">Hủy đơn</button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-action="ChangeStatus" asp-controller="Cart" method="post">
+                                                        <input type="hidden" name="OrderId" value="@item.Id">
+                                                        <input type="hidden" name="status" value="@OrderStatus.Cancel" />
+                                                        <button type="submit" class="btn btn-danger">Hủy đơn</button>
+                                                    </form>
+                                                }
+                                            </td>
+                                            <td class="remove-col">
+                                                <form asp-action="DeleteCheckOut" asp-controller="Cart" method="post">
+                                                    <input type="hidden" name="OrderId" value="@item.Id">
+                                                    <button class="btn-remove" type="submit"><i class="icon-close"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+
+                                    }
+                                }
+                            </tbody>
+                        </table><!-- End .table table-wishlist -->
+                    </div><!-- End .row -->
+                </div><!-- End .container -->
+            </div><!-- End .cart -->
+        </div><!-- End .page-content -->
+</main><!-- End .main -->

@@ -129,7 +129,7 @@ builder.Services.AddAuthentication(opt =>
                    ValidAudience = issuer,
                    ValidateLifetime = true,
                    ValidateIssuerSigningKey = true,
-                   ClockSkew = System.TimeSpan.Zero,
+                    ClockSkew = TimeSpan.FromDays(3),
                    IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
                };
            });

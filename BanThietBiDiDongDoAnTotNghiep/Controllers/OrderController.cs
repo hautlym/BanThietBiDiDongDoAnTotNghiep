@@ -43,6 +43,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
         public async Task<IActionResult> Create(int numberProduct=1)
         {
             var product = await _productApiClient.GetAll();
+            
             ViewBag.Product = product.ResultObj.Select(x => new SelectListItem()
             {
                 Text = x.ProductName,

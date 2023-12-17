@@ -5,6 +5,7 @@ using BanThietBiDiDongDATN.ApiIntegration.Service.OrderApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.UserApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.VoucherApiClient;
+using BanThietBiDiDongDATN.MvcApp.Models;
 using BTL_KTPM.ApiIntegration.Service.CartApiClient;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ builder.Services.AddTransient<IVoucherApiClient, VoucherApiClient>();
 builder.Services.AddTransient<IProductApiClient, ProductApiClient>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<ICartApiClient, CartApiClient>();
+builder.Services.AddScoped<IVNPayMethod, VNPayMethod>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -32,6 +34,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromDays(30);
+});
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromDays(3); 
 });
 if (builder.Environment.IsDevelopment())
 {

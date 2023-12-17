@@ -191,12 +191,14 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
             {
                 Id = x.Id,
                 ShipName = x.ShipName,
+                ShipNumberPhone = x.ShipNumberPhone,
                 ShipAddress = x.ShipAddress,
                 ShipDescription = x.ShipDescription,
                 ShipEmail = x.ShipEmail,
-                ShipNumberPhone = x.ShipNumberPhone,
-                OrderDate = DateTime.Now,
-                OrderDetails = x.OrderDetails
+                OrderDate = x.OrderDate,
+                OrderDetails = x.OrderDetails,
+                typePayment = x.typePayment,
+                status = x.status,
             }).ToListAsync();
             return new ApiSuccessResult<List<OrderViewModel>>(data);
         }

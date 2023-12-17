@@ -6,6 +6,7 @@
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 @if (TempData["failed"] != null)
 {
     <script type="text/javascript">
@@ -41,20 +42,42 @@
             type: 'GET',
             data: { voucherCode: formData.voucher },
             success: function (response) {
-                var voucherPercent = document.querySelector(".voucher-percent");
-                var voucherPrice = document.querySelector(".voucher-price");
-                var totalCart1 = document.querySelector(".temp-total")
-               // var voucherCode = document.querySelector("");
-                var finalTotal1 = document.querySelector(".final-total")
-                var persent = response.voucher?.discount
-                var price = parseFloat(totalCart1.innerText.replace(/[^0-9]/g, ''))
-                console.log(price)
-                finalTotal1.innerText = VND.format(price - (price * (persent/100)))
-                voucherPercent.innerText = persent + "%";
-                voucherPrice.innerText ="-"+ VND.format(price * (persent / 100));
+                if (response.success == true) {
+                    var voucherPercent = document.querySelector(".voucher-percent");
+                    var voucherPrice = document.querySelector(".voucher-price");
+                    var totalCart1 = document.querySelector(".temp-total")
+                    // var voucherCode = document.querySelector("");
+                    var finalTotal1 = document.querySelector(".final-total")
+                    var persent = response.voucher?.discount
+                    var price = parseFloat(totalCart1.innerText.replace(/[^0-9]/g, ''))
+                    console.log(price)
+                    finalTotal1.innerText = VND.format(price - (price * (persent / 100)))
+                    voucherPercent.innerText = persent + "%";
+                    voucherPrice.innerText = "-" + VND.format(price * (persent / 100));
+                }
+                else {
+                    toastr.error(response.mess, "Thất bại", {
+                        timeOut: 5e3,
+                        closeButton: !0,
+                        debug: !1,
+                        newestOnTop: !0,
+                        progressBar: !0,
+                        positionClass: "toast-top-right",
+                        preventDuplicates: !0,
+                        onclick: null,
+                        showDuration: "300",
+                        hideDuration: "1000",
+                        extendedTimeOut: "1000",
+                        showEasing: "swing",
+                        hideEasing: "linear",
+                        showMethod: "fadeIn",
+                        hideMethod: "fadeOut",
+                        tapToDismiss: !1,
+                    })
+                }
             },
             error: function (error) {
-                alert(error)
+               
                 
             }
         });
@@ -133,7 +156,7 @@
             </ol>
         </div><!-- End .container -->
     </nav><!-- End .breadcrumb-nav -->
-
+    
     <div class="page-content">
         <div class="cart">
             <div class="container">
@@ -206,6 +229,7 @@
                                                 </form>
                                             </td>
                                         </tr>
+                                        
                                     }
                                 }
                             </tbody>
@@ -232,7 +256,7 @@
                                 <tbody>
                                     <tr class="summary-subtotal">
                                         <td>Tạm tính:</td>
-                                        <td class="temp-total">$160.00</td>
+                                        <td class="temp-total">0</td>
                                     </tr><!-- End .summary-subtotal -->
                                     <tr class="summary-shipping">
                                         <td>Giảm giá:</td>
@@ -245,7 +269,7 @@
                                                 <label class="custom-control-label" for="free-shipping">Mã giảm giá</label>
                                             </div><!-- End .custom-control -->
                                         </td>
-                                        <td class="voucher-percent">$0.00</td>
+                                        <td class="voucher-percent"></td>
                                     </tr><!-- End .summary-shipping-row -->
                                     <tr class="summary-shipping-row">
                                         <td>
@@ -253,16 +277,16 @@
                                                 <label class="custom-control-label" for="free-shipping">Số tiền giảm</label>
                                             </div><!-- End .custom-control -->
                                         </td>
-                                        <td class="voucher-price">$0.00</td>
+                                        <td class="voucher-price"></td>
                                     </tr><!-- End .summary-shipping-row -->
                                     <tr class="summary-total">
-                                        <td>Total:</td>
-                                        <td class="final-total">$160.00</td>
+                                        <td>Tổng tiền:</td>
+                                        <td class="final-total"></td>
                                     </tr><!-- End .summary-total -->
                                 </tbody>
                             </table><!-- End .table table-summary -->
 
-                            <a href="checkout.html" class="btn btn-outline-primary-2 btn-order btn-block">Thanh toán</a>
+                            <a asp-action="CheckOutView" asp-controller="Cart" class="btn btn-outline-primary-2 btn-order btn-block">Thanh toán</a>
                         </div><!-- End .summary -->
 
                         <a asp-action="Index" asp-controller="Product" class="btn btn-outline-dark-2 btn-block mb-3"><span>Tiếp tục mua sắm</span><i class="icon-refresh"></i></a>

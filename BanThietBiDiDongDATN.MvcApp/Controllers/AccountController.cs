@@ -49,7 +49,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var userPrincipal = this.ValidateToken(token.ResultObj);
             var authProperties = new AuthenticationProperties
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(3),
                 IsPersistent = false
             };
             HttpContext.Session.SetString("Token", token.ResultObj);

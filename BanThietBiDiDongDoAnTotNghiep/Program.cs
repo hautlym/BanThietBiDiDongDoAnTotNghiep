@@ -24,7 +24,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Login/Index/";
         options.AccessDeniedPath = "/Home/Index/";
-        options.ExpireTimeSpan = TimeSpan.FromDays(7); // Thời gian sống của cookie là 7 ngày
+        options.ExpireTimeSpan = TimeSpan.FromDays(3); // Thời gian sống của cookie là 7 ngày
         options.SlidingExpiration = true; // Tự động gia hạn thời gian sống khi có hoạt động
     });
 builder.Services.AddTransient<ICategoriesApiClient, CategoriesApiClient>();
@@ -38,9 +38,10 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromDays(7); // Thời gian sống của phiên làm việc là 7 ngày
+    options.IdleTimeout = TimeSpan.FromDays(3); // Thời gian sống của phiên làm việc là 7 ngày
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+
 });
 if (builder.Environment.IsDevelopment())
 {

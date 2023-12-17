@@ -54,6 +54,14 @@
         body {
             font-family: Roboto !important;
         }
+
+
+    </style>
+    <style>
+        .toast-error {
+            background-color: #BD362F !important;
+            font-size: 1.4rem !important;
+        }
     </style>
     <div class="page-wrapper">
         <header class="header header-intro-clearance header-4">
@@ -86,11 +94,12 @@
                     <div class="header-right">
                         <div class="dropdown compare-dropdown">
                             <a href="#" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static" title="Compare Products" aria-label="Compare Products">
-                                <div class="icon">
-                                    <i class="fa-regular fa-user fa-xs"></i>
-                                </div>
+                                
                                 @if (!User.Identity.IsAuthenticated)
                                 {
+                                    <div class="icon">
+                                        <i class="fa-regular fa-user fa-xs"></i>
+                                    </div>
                                     <p>Tài khoản</p>
                                 }
                                 else

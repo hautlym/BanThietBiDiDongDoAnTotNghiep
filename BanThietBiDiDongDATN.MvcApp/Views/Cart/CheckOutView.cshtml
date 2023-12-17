@@ -1,20 +1,101 @@
-﻿
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Carts;
+@using BanThietBiDiDongDATN.Data.Enums;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model List<CartViewModel>
 @{
     ViewData["Title"] = "CheckOutView";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<script>
+
+    function useVoucher(event) {
+        event.preventDefault();
+        var formData = {
+            voucher: $("input[name='voucherCode']").val(),
+        };
+        $.ajax({
+            url: '/Cart/ApplyVoucher',  // Đường dẫn API hoặc endpoint để xử lý cập nhật số lượng
+            type: 'GET',
+            data: { voucherCode: formData.voucher },
+            success: function (response) {
+                if (response.success == true) {
+                    var voucherPercent = document.querySelector(".voucher-persent");
+                    var voucherPrice = document.querySelector(".voucher-price");
+                    var totalCart1 = document.querySelector(".temp-total")
+                    var voucherInput = document.querySelector("input[name='voucherId']")
+                    // var voucherCode = document.querySelector("");
+                    var finalTotal1 = document.querySelector(".final-total")
+                    var persent = response.voucher?.discount
+                    var price = parseFloat(totalCart1.innerText.replace(/[^0-9]/g, ''))
+                    console.log(price)
+                    finalTotal1.innerText = VND.format(price - (price * (persent / 100)))
+                    console.log(finalTotal1.innerText)
+                    voucherPercent.innerText = persent + "%";
+                    voucherPrice.innerText = "-" + VND.format(price * (persent / 100));
+                    voucherInput.ariaValueMax = formData.voucher
+                }
+                else {
+                    toastr.error(response.mess, "Thất bại", {
+                        timeOut: 5e3,
+                        closeButton: !0,
+                        debug: !1,
+                        newestOnTop: !0,
+                        progressBar: !0,
+                        positionClass: "toast-top-right",
+                        preventDuplicates: !0,
+                        onclick: null,
+                        showDuration: "300",
+                        hideDuration: "1000",
+                        extendedTimeOut: "1000",
+                        showEasing: "swing",
+                        hideEasing: "linear",
+                        showMethod: "fadeIn",
+                        hideMethod: "fadeOut",
+                        tapToDismiss: !1,
+                    })
+                }
+            },
+            error: function (error) {
+
+
+            }
+        });
+
+    }
+</script>
+<script>
+    window.addEventListener('load', function () {
+        FormatPrice();
+    });
+    const VND = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    });
+    function FormatPrice() {
+        var list = document.querySelectorAll(".format-price")
+        console.log(list)
+        for (var i = 0; i < list.length; i++) {
+            var price = list[i].innerText
+            var IntPrice = parseInt(price)
+            console.log(IntPrice)
+            list[i].innerText = VND.format(IntPrice)
+        }
+    }
+</script>
 <main class="main">
-    <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+    <div class="page-header text-center" style="background-image: url('/clientApp/assets/images/page-header-bg.jpg')">
         <div class="container">
-            <h1 class="page-title">Checkout<span>Shop</span></h1>
+            <h1 class="page-title">Thanh toán<span>Shop</span></h1>
         </div><!-- End .container -->
     </div><!-- End .page-header -->
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
         <div class="container">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Cart">Giỏ hàng</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Thanh toán</li>
             </ol>
         </div><!-- End .container -->
     </nav><!-- End .breadcrumb-nav -->
@@ -22,196 +103,144 @@
     <div class="page-content">
         <div class="checkout">
             <div class="container">
-                <div class="checkout-discount">
-                    <form action="#">
-                        <input type="text" class="form-control" required id="checkout-discount-input">
-                        <label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
+                <div class="checkout-discount" style="max-width:400px;">
+                    <form id="formVoucher" onsubmit="useVoucher(event)">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="voucherCode" style="margin:0;" placeholder="Mã giảm giá ...">
+                            <div class="ml-3 input-group-append">
+                                <button class="btn btn-outline-primary-2" style="min-width:unset" type="submit"><i class="icon-long-arrow-right"></i></button>
+                            </div><!-- .End .input-group-append -->
+                        </div><!-- End .input-group -->
                     </form>
                 </div><!-- End .checkout-discount -->
-                <form action="#">
+                <form asp-action="CheckOut" asp-controller="Cart" method="post">
                     <div class="row">
-                        <div class="col-lg-9">
-                            <h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
+                        <div class="col-lg-7">
+                            <h2 class="checkout-title">Thông tin thanh toán</h2><!-- End .checkout-title -->
                             <div class="row">
-                                <div class="col-sm-6">
-                                    <label>First Name *</label>
-                                    <input type="text" class="form-control" required>
-                                </div><!-- End .col-sm-6 -->
-
-                                <div class="col-sm-6">
-                                    <label>Last Name *</label>
-                                    <input type="text" class="form-control" required>
+                                <div class="col-sm-12">
+                                    <label>Người nhận *</label>
+                                    <input type="text" name="ShipName" class="form-control" required>
                                 </div><!-- End .col-sm-6 -->
                             </div><!-- End .row -->
 
-                            <label>Company Name (Optional)</label>
-                            <input type="text" class="form-control">
-
-                            <label>Country *</label>
-                            <input type="text" class="form-control" required>
-
-                            <label>Street address *</label>
-                            <input type="text" class="form-control" placeholder="House number and Street name" required>
-                            <input type="text" class="form-control" placeholder="Appartments, suite, unit etc ..." required>
-
+                            <label>Địa chỉ *</label>
+                            <input type="text" name="ShipAddress" class="form-control">
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <label>Town / City *</label>
-                                    <input type="text" class="form-control" required>
+                                    <label>Số điện thoại *</label>
+                                    <input type="text" name="ShipNumberPhone" class="form-control" required>
                                 </div><!-- End .col-sm-6 -->
 
                                 <div class="col-sm-6">
-                                    <label>State / County *</label>
-                                    <input type="text" class="form-control" required>
+                                    <label>Email *</label>
+                                    <input type="text" name="ShipEmail" class="form-control" required>
                                 </div><!-- End .col-sm-6 -->
                             </div><!-- End .row -->
 
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <label>Postcode / ZIP *</label>
-                                    <input type="text" class="form-control" required>
-                                </div><!-- End .col-sm-6 -->
-
-                                <div class="col-sm-6">
-                                    <label>Phone *</label>
-                                    <input type="tel" class="form-control" required>
-                                </div><!-- End .col-sm-6 -->
-                            </div><!-- End .row -->
-
-                            <label>Email address *</label>
-                            <input type="email" class="form-control" required>
-
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="checkout-create-acc">
-                                <label class="custom-control-label" for="checkout-create-acc">Create an account?</label>
-                            </div><!-- End .custom-checkbox -->
-
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="checkout-diff-address">
-                                <label class="custom-control-label" for="checkout-diff-address">Ship to a different address?</label>
-                            </div><!-- End .custom-checkbox -->
-
-                            <label>Order notes (optional)</label>
-                            <textarea class="form-control" cols="30" rows="4" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
+                            <label>Ghi chú</label>
+                            <input type="hidden" name="typeOrder" value="CustomerCreate" />
+                            <input type="hidden" name="voucherId" value="" />
+                            <input type="hidden" name="status" value="0" />
+                            <textarea class="form-control" name="ShipDescription" cols="30" rows="4" value="Nhập ghi chú" placeholder="Nhập ghi chú"></textarea>
+                            <label>Phương thức thanh toán</label>
+                            <select name="typePayment" class="form-control" >
+                                @foreach (var status in Enum.GetValues(typeof(TypeCheckOut)))
+                                {
+                                    <option value="@status">@EnumExtensions.GetEnumMemberValue((TypeCheckOut)status)</option>
+                                }
+                                @* <option value="COD">COD</option>
+                                <option value="Online">Online</option> *@
+                            </select>
+                         
                         </div><!-- End .col-lg-9 -->
-                        <aside class="col-lg-3">
+                        @{
+                            double total = 0;
+                        }
+                        <aside class="col-lg-4">
                             <div class="summary">
-                                <h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
-
+                                <h3 class="summary-title">Đơn hàng của bạn</h3><!-- End .summary-title -->
                                 <table class="table table-summary">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-
+                                    @*  <thead>
+                                    <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Tổng tiền</th>
+                                    </tr>
+                                    </thead> *@
                                     <tbody>
-                                        <tr>
-                                            <td><a href="#">Beige knitted elastic runner shoes</a></td>
-                                            <td>$84.00</td>
-                                        </tr>
+                                        <div class="order">
+                                            @if (Model != null)
+                                            {
+                                                @foreach (var item in Model)
+                                                {
 
-                                        <tr>
-                                            <td><a href="#">Blue utility pinafore denimdress</a></td>
-                                            <td>$76,00</td>
-                                        </tr>
+                                                    <div class="order-intro">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-3"><img src="@Configuration["BaseAddress"]/user-content/product/@item.ImgUrl" alt=""></div>
+                                                            <div class="col-9"><strong>@item.ProductNane</strong> </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="price">
+                                                        <div class="row">
+                                                            <div class="col-4">Giá:</div>
+                                                            <div class="col-8 text-end format-price">@item.ProductOriginal </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="soluong" style="margin:0;height:25px !important;">
+                                                        <div class="row">
+                                                            <div class="col-4">Số lượng:</div>
+                                                            <div class="col-8 text-end">@item.Quantity</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="discount">
+                                                        <div class="row">
+                                                            <div class="col-4">Khuyến mại:</div>
+                                                            <div class="col-8 text-end format-price">
+                                                                @{
+
+                                                                    var price = item.ProductOriginal - item.ProductPrice;
+                                                                }
+                                                                @price
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tamtinh">
+                                                        <div class="row">
+                                                            <div class="col-4">Tạm tính:</div>
+                                                            <div class="col-8 text-end order-price format-price">@item.totalPrice </div>
+                                                        </div>
+                                                    </div>
+                                                    string price1 = item.totalPrice.Split(".")[0];
+                                                    total += Convert.ToDouble(price1);
+                                                }
+                                            }
+
+
+                                        </div>
+
                                         <tr class="summary-subtotal">
-                                            <td>Subtotal:</td>
-                                            <td>$160.00</td>
+                                            <td>Tạm tính:</td>
+                                            <td class="temp-total format-price"> @total</td>
                                         </tr><!-- End .summary-subtotal -->
                                         <tr>
-                                            <td>Shipping:</td>
-                                            <td>Free shipping</td>
-                                        </tr>
+                                            <td>Giảm giá:</td>
+                                            <td class="voucher-persent">0</td>
+                                        </tr><!-- End .summary-subtotal -->
+                                        <tr>
+                                            <td>Giảm giá:</td>
+                                            <td class="voucher-price format-price">0</td>
+                                        </tr><!-- End .summary-subtotal -->
                                         <tr class="summary-total">
-                                            <td>Total:</td>
-                                            <td>$160.00</td>
+                                            <td>Tổng tiền:</td>
+                                            <td class="final-total format-price">@total </td>
                                         </tr><!-- End .summary-total -->
                                     </tbody>
                                 </table><!-- End .table table-summary -->
 
-                                <div class="accordion-summary" id="accordion-payment">
-                                    <div class="card">
-                                        <div class="card-header" id="heading-1">
-                                            <h2 class="card-title">
-                                                <a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
-                                                    Direct bank transfer
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-2">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-                                                    Check payments
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-3">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-                                                    Cash on delivery
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Quisque volutpat mattis eros. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-4">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-                                                    PayPal <small class="float-right paypal-link">What is PayPal?</small>
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-
-                                    <div class="card">
-                                        <div class="card-header" id="heading-5">
-                                            <h2 class="card-title">
-                                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-                                                    Credit Card (Stripe)
-                                                    <img src="assets/images/payments-summary.png" alt="payments cards">
-                                                </a>
-                                            </h2>
-                                        </div><!-- End .card-header -->
-                                        <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-                                            <div class="card-body">
-                                                Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .collapse -->
-                                    </div><!-- End .card -->
-                                </div><!-- End .accordion -->
 
                                 <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
-                                    <span class="btn-text">Place Order</span>
-                                    <span class="btn-hover-text">Proceed to Checkout</span>
+                                    <span class="btn-text">Thanh toán</span>
+                                    <span class="btn-hover-text">Thanh toán</span>
                                 </button>
                             </div><!-- End .summary -->
                         </aside><!-- End .col-lg-3 -->

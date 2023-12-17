@@ -2,9 +2,11 @@
 using BanThietBiDiDongDATN.Application.Catalog.Categories.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.Categories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
+    [Authorize]
     public class CategoryController : Controller
     {
         private readonly ICategoriesApiClient _brandApiClient;
