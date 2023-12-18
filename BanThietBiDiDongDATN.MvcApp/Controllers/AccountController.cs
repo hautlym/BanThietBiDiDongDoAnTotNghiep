@@ -57,6 +57,8 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                        CookieAuthenticationDefaults.AuthenticationScheme,
                        userPrincipal,
                        authProperties);
+            var checkTime = await _userApiClient.CheckSignedTime(Guid.Parse(userPrincipal.FindFirst(ClaimTypes.NameIdentifier).Value));
+
             return RedirectToAction("Index", "Home");
         }
         [HttpGet]
