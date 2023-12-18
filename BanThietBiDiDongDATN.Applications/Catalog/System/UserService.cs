@@ -96,20 +96,28 @@ namespace BanThietBiDiDongDATN.Application.Catalog.System
 
         public async Task<ApiResult<bool>> delete(Guid id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
+            try
             {
-                return new ApiErrorResult<bool>("User không tồn tại");
-            }
-            if (user.Avatar != null)
-            {
-                _storageService.DeleteFileAsync("user", user.Avatar);
-            }
-            var reult = await _userManager.DeleteAsync(user);
-            if (reult.Succeeded)
-                return new ApiSuccessResult<bool>();
+                var user = await _userManager.FindByIdAsync(id.ToString());
+                if (user == null)
+                {
+                    return new ApiErrorResult<bool>("User không tồn tại");
+                }
+                if (user.Avatar != null)
+                {
+                    _storageService.DeleteFileAsync("user", user.Avatar);
+                }
+                var reult = await _userManager.DeleteAsync(user);
+                if (reult.Succeeded)
+                    return new ApiSuccessResult<bool>();
 
-            return new ApiErrorResult<bool>("Xóa không thành công");
+                return new ApiErrorResult<bool>("Xóa không thành công");
+            }catch(Exception ex)
+            {
+                return new ApiErrorResult<bool>(ex.Message.ToString());
+            }
+
+
         }
 
         public async Task<ApiResult<UserViewModels>> GetById(Guid id)

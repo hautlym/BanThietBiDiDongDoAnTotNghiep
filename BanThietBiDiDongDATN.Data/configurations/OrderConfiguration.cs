@@ -17,7 +17,7 @@ namespace BanThietBiDiDongDATN.Data.configurations
             builder.Property(x=>x.ShipAddress).IsRequired();
             builder.Property(x => x.ShipNumberPhone).IsRequired();
             builder.Property(x => x.ShipName).IsRequired();
-            
+            builder.HasOne(x=>x.user).WithMany(x=>x.Orders).HasForeignKey(x=>x.AppUserId);
         }
     }
 }

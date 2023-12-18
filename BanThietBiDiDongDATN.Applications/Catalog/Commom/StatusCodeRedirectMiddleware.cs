@@ -18,8 +18,8 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Commom
 
         public async Task Invoke(HttpContext context)
         {
-            try
-            {
+            //try
+            //{
                 await _next(context);
                 if (context.Response.StatusCode == 400)
                 {
@@ -33,10 +33,10 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Commom
                 {
                     context.Response.Redirect("/Error/500");
                 }
-            }catch (Exception ex)
-            {
-                context.Response.Redirect("/Error/500");
-            }
+            //}catch (Exception ex)
+            //{
+            //    context.Response.Redirect("/Error/500");
+            //}
         }
     }
 }

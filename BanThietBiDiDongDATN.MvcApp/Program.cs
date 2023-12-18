@@ -5,6 +5,7 @@ using BanThietBiDiDongDATN.ApiIntegration.Service.OrderApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.UserApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.VoucherApiClient;
+using BanThietBiDiDongDATN.Application.Catalog.Commom;
 using BanThietBiDiDongDATN.MvcApp.Models;
 using BTL_KTPM.ApiIntegration.Service.CartApiClient;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -51,7 +52,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseMiddleware<StatusCodeRedirectMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();

@@ -3,6 +3,7 @@ using BanThietBiDiDongDATN.Application.Catalog.Commom;
 using BanThietBiDiDongDATN.Application.Catalog.System;
 using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
 using BanThietBiDiDongDATN.Data.entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrator")]
     public class RolesController : ControllerBase
     {
         private readonly IRolesService _roleManager;

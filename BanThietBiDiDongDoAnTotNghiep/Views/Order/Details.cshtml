@@ -1,9 +1,48 @@
-﻿@model BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos.OrderViewModel
+﻿@using BanThietBiDiDongDATN.Application.Catalog.Carts;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos.OrderViewModel
 
 @{
     ViewData["Title"] = "Thông tin đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts{
+    <script>
+
+        function ExportBill() {
+
+
+            var printContents = document.getElementById("PrintForm").innerHTML;
+
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            // Sao chép nội dung của trang vào iframe
+            // var content = document.documentElement.outerHTML;
+            iframe.contentDocument.write();
+            iframe.contentDocument.write("<html><head><title>Print</title></head><body>" + printContents + "</body></html>");
+            iframe.contentDocument.close();
+
+            // Kích hoạt lệnh in cho iframe
+            iframe.contentWindow.print();
+
+            // Xóa iframe sau khi in xong
+            document.body.removeChild(iframe);
+
+            // var originalContents = document.body.innerHTML;
+            // document.body.innerHTML = printContents;
+            // window.print();
+            // document.body.innerHTML = originalContents;
+        }
+    </script>
+}
+
+<style>
+    th {
+        width: 20%;
+    }
+</style>
 <div class="container-fluid">
     <div class="col-lg-12">
 
@@ -59,16 +98,195 @@
                                     <th> Loai thanh toán:</th>
                                     <td>@Html.DisplayFor(model => model.typePayment)</td>
                                 </tr>
-                                <tr>
-                                    <th> Người đặt:</th>
-                                    <td>@Html.DisplayFor(model => model.AppUserId)</td>
-                                </tr>
+
                                 <tr>
                                     <th> Ngày đặt:</th>
                                     <td>@Html.DisplayFor(model => model.OrderDate)</td>
                                 </tr>
+                                <tr>
+                                    @{
+                                        double total = 0;
+                                    }
+                                    <th>Sản phẩm</th>
+                                    <td>
+                                        <div class="order">
+                                            @foreach (var item in (List<CartViewModel>)ViewBag.Cart)
+                                            {
+                                                <div style="padding: 6px;
+    border-bottom: 1px solid #eae9e9;">
+                                                    <div class="order-intro">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-3"><img style="height:100px; width:100px" src="@Configuration["BaseAddress"]/user-content/product/@item.ImgUrl" alt=""></div>
+                                                            <div class="col-9">
+                                                                <strong>@item.ProductNane</strong>
+                                                                <div class="price">
+                                                                    <div class="row">
+                                                                        <div class="col-4">Giá:</div>
+                                                                        <div class="col-8 text-end format-price">@String.Format("{0:n0}",item.ProductOriginal) VNĐ </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="soluong" style="margin:0;height:25px !important;">
+                                                                    <div class="row">
+                                                                        <div class="col-4">Số lượng:</div>
+                                                                        <div class="col-8 text-end">@item.Quantity</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="discount">
+                                                                    <div class="row">
+                                                                        <div class="col-4">Khuyến mại:</div>
+                                                                        <div class="col-8 text-end format-price">
+                                                                            @{
+                                                                                var price = item.ProductOriginal - item.ProductPrice;
+                                                                            }
+                                                                            @String.Format("{0:n0}",price) VNĐ
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="tamtinh">
+                                                                    <div class="row">
+                                                                        <div class="col-4">Tạm tính:</div>
+                                                                        <div class="col-8 text-end order-price format-price">@String.Format("{0:n0}",Convert.ToDouble(item.totalPrice)) VNĐ</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                total += Convert.ToDouble(item.totalPrice);
+                                            }
+                                            <div style="text-align:right;">
+                                                <div><strong>Thành tiền: </strong> @String.Format("{0:n0}", total) VNĐ</div>
+                                                <div><strong>Giảm giá voucher: </strong> @String.Format("{0:n0}",total- Model.OrderDetails.Select(x=>Convert.ToDouble(x.Price)).Sum()) VNĐ</div>
+                                                <div><strong>Tổng tiền: </strong> @String.Format("{0:n0}", Model.OrderDetails.Select(x=>Convert.ToDouble(x.Price)).Sum()) VNĐ</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="bootstrap-modal" style="display: inline-block">
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal" data-whatever="@@mdo">
+                                <i class="fa-solid fa-file-export" style="color: #ffffff;"></i>  In hóa đơn
+                            </button>
+                            <style>
+                                .card-title {
+                                    font-size: 14px;
+                                    font-weight: 500;
+                                    line-height: 14px;
+                                }
+                            </style>
+                            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document" style="max-width:650px">
+                                    @* <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">In hóa đơn</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body d-flex flex-wrap" id="PrintForm">
+                                            <div style="width: 100%; text-align: center">
+                                                <img src="/Logo.png" style="width: 25%; aspect-ratio: 3 / 2" />
+                                                <h3>Cửa hàng bán thiết bị di động Hà Tú Mobile</h3>
+                                                <p><strong>Số điện thoại:</strong> 082 598 9999</p>
+                                                <p><strong>Email:</strong> nguyenbaquyet130494@gmail.com</p>
+                                                <p><strong>Địa chỉ:</strong> Thư Thị - Tân Lập - Yên Mỹ - Hưng Yên</p>
+                                                <hr style="width: 100%" />
+                                                <h3>Khách hàng</h3>
+                                                <div style="width: 100%; text-align: left">
+                                                    <p>
+                                                        <strong>Mã đơn hàng:</strong> #@Model.Id
+                                                    </p>
+                                                    <p>
+                                                        <strong>Tên khách hàng:</strong> @Model.ShipName
+                                                    </p>
+                                                    <div class="d-flex" style="display:flex;">
+                                                        <p class="mr-3" style="margin-right:1rem;"><strong>SĐT:</strong> @Model.ShipNumberPhone</p>
+                                                        <p><strong>Email:</strong> @Model.ShipEmail</p>
+                                                    </div>
+                                                    <div class="d-flex" style="display:flex;" >
+                                                        <p class="mr-3" style="margin-right:1rem;">
+                                                            <strong>Phương thức thanh toán:</strong> @Model.typePayment
+                                                        </p>
+                                                        <p><strong>Ngày đặt:</strong> @Model.OrderDate</p>
+                                                    </div>
+                                                    <p><strong>Địa chỉ:</strong> @Model.ShipAddress</p>
+                                                </div>
+                                                <hr style="width: 100%" />
+                                                <h3>Thông tin đơn hàng</h3>
+                                                <div class="table-responsive">
+                                                    @{
+                                                        var i = 1;
+                                                    }
+                                                    <table class="table header-border text-align:center" style="border-collapse: collapse">
+                                                        <thead>
+                                                            <tr style="border-bottom: 1px solid #dddddd">
+                                                                <th style="width:10%;">STT</th>
+                                                                <th style="width:20%;">Sản phẩm</th>
+                                                                <th style="width:20%;">Đơn giá</th>
+                                                                <th style="width:20%;">Giảm giá</th>
+                                                                <th style="width:10%;">SL</th>
+                                                                <th style="width:20%;">Tạm tính</th>
+                                                            </tr>
+
+                                                        </thead>
+                                                        <tbody>
+                                                            @{
+                                                                double total1 = 0;
+                                                            }
+                                                            @foreach (var item in (List<CartViewModel>)ViewBag.Cart)
+                                                            {
+                                                                <tr class="text-algin-left" style="border-bottom: 1px solid #dddddd">
+                                                                    <td style="width:10%; text-align:center;">
+                                                                        @i @{
+                                                                            i++;
+                                                                        }
+                                                                    </td>
+                                                                    <td style="width:20%; text-align:center;">@item.ProductNane - @item.OptionColor - @item.OptionSize</td>
+                                                                    <td style="width:20%; text-align:center;">@String.Format("{0:n0}",@item.ProductPrice)đ </td>
+                                                                    <td style="width:20%; text-align:center;">
+                                                                        @{
+                                                                            var price = item.ProductOriginal - item.ProductPrice;
+                                                                        }
+                                                                        @String.Format("{0:n0}",price)đ
+                                                                    </td>
+                                                                    <td style="width:10%; text-align:center;">@item.Quantity</td>
+                                                                    <td style="width:20%; text-align:center;">@String.Format("{0:n0}",Convert.ToDouble(item.totalPrice))đ</td>
+                                                                </tr>
+                                                                total1 += Convert.ToDouble(item.totalPrice);
+                                                            }
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div style="width: 100%; text-align: right">
+                                                    <p>
+                                                        <strong>Thành tiền: </strong>@String.Format("{0:n0}",total1)đ
+                                                    </p>
+                                                    <p>
+                                                        <strong>Giảm giá voucher: </strong>@{
+                                                            var discountPrice = Model.OrderDetails.Select(x => x.Price).Sum() - total1;
+                                                        }
+                                                        @String.Format("{0:n0}",discountPrice)đ
+                                                    </p>
+                                                    <p>
+                                                        <strong>Tổng tiền: </strong> @String.Format("{0:n0}",Model.OrderDetails.Select(x=>x.Price).Sum())đ
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                            <button onclick="ExportBill()" class="btn btn-primary">In hóa đơn</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

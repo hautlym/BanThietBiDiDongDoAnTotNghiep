@@ -1,4 +1,5 @@
-﻿using BanThietBiDiDongDATN.Application.Catalog.Commom;
+﻿using BanThietBiDiDongDATN.Application.Catalog.Carts;
+using BanThietBiDiDongDATN.Application.Catalog.Commom;
 using BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
 using BanThietBiDiDongDATN.Data.EF;
@@ -187,7 +188,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
         public async Task<ApiResult<List<OrderViewModel>>> GetAllCartByUserId(Guid UserId)
         {
             var order = _context.Orders;
-            var data = await order.Where(x => x.AppUserId == UserId).Select(x => new OrderViewModel()
+            var data = await order.Where(x => x.AppUserId == UserId).Select( x => new OrderViewModel()
             {
                 Id = x.Id,
                 ShipName = x.ShipName,
@@ -202,7 +203,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
             }).ToListAsync();
             return new ApiSuccessResult<List<OrderViewModel>>(data);
         }
-
+        
         public async Task<ApiResult<PageResult<OrderViewModel>>> GetAlllPaging(GetOrderRequest request)
         {
             var query = from c in _context.Orders
@@ -236,27 +237,34 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
         }
         public async Task<ApiResult<List<OrderViewModel>>> getAllOrder()
         {
-            var data =await _context.Orders.Select(x => new OrderViewModel()
+            try
             {
-                Id = x.Id,
-                ShipName = x.ShipName,
-                ShipNumberPhone = x.ShipNumberPhone,
-                ShipAddress = x.ShipAddress,
-                ShipDescription = x.ShipDescription,
-                ShipEmail = x.ShipEmail,
-                OrderDate = x.OrderDate,
-                OrderDetails = x.OrderDetails,
-                typePayment = x.typePayment,
-                status = x.status,
-            }).ToListAsync();
-            return new ApiSuccessResult<List<OrderViewModel>>(data);
+                var data = await _context.Orders.Select(x => new OrderViewModel()
+                {
+                    Id = x.Id,
+                    ShipName = x.ShipName,
+                    ShipNumberPhone = x.ShipNumberPhone,
+                    ShipAddress = x.ShipAddress,
+                    ShipDescription = x.ShipDescription,
+                    ShipEmail = x.ShipEmail,
+                    OrderDate = x.OrderDate,
+                    OrderDetails = x.OrderDetails,
+                    typePayment = x.typePayment,
+                    status = x.status,
+                }).ToListAsync();
+                return new ApiSuccessResult<List<OrderViewModel>>(data);
+
+            }catch(Exception ex)
+            {
+                return new ApiErrorResult<List<OrderViewModel>>("Lỗi ");
+            }
         }
 
         public async Task<ApiResult<OrderViewModel>> GetById(int OrderId)
         {
             try
             {
-                
+
                 var data = await _context.Orders.Where(x => x.Id == OrderId).Select(x => new OrderViewModel()
                 {
                     Id = x.Id,
@@ -266,6 +274,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
                     ShipDescription = x.ShipDescription,
                     ShipEmail = x.ShipEmail,
                     OrderDate = x.OrderDate,
+                    voucherId = x.voucherId,
                     OrderDetails = x.OrderDetails,
                     typePayment = x.typePayment,
                     status = x.status,
@@ -279,11 +288,11 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
                     return new ApiErrorResult<OrderViewModel>("Không tìm thấy đơn hàng");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new ApiErrorResult<OrderViewModel>("Không tìm thấy đơn hàng");
             }
-            
+
         }
 
         public async Task<ApiResult<bool>> ChangeStatus(int OrderId, OrderStatus status)
@@ -298,14 +307,15 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Orders
                 return new ApiErrorResult<bool>("Đơn hàng đã hoàn thành");
             }
             order.status = status;
-            if(status == OrderStatus.Cancel) {
-                var Detail = _context.OrderDetails.Where(x=>x.OrderId== order.Id).ToList();
+            if (status == OrderStatus.Cancel)
+            {
+                var Detail = _context.OrderDetails.Where(x => x.OrderId == order.Id).ToList();
                 foreach (var item in Detail)
                 {
-                    var option = _context.productOptions.Where(x=>x.Id==item.OptionId).FirstOrDefault();
-                    if(option != null)
+                    var option = _context.productOptions.Where(x => x.Id == item.OptionId).FirstOrDefault();
+                    if (option != null)
                     {
-                        option.Quantity = option.Quantity+item.Quantity;
+                        option.Quantity = option.Quantity + item.Quantity;
                         _context.productOptions.Update(option);
                     }
                 }

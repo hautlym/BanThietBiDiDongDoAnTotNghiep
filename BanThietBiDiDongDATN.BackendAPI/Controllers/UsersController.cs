@@ -14,7 +14,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -106,6 +106,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
             return Ok(products);
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrator")]
 
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -113,6 +114,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
             return Ok(result);
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Update(Guid id, [FromForm] UserUpdateRequest request)
         {
             if (!ModelState.IsValid)
@@ -127,12 +129,14 @@ namespace BTL_KTPM.BackendAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userService.GetById(id);
             return Ok(user);
         }
         [HttpPut("{id}/roles")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> RoleAssign(Guid id, [FromBody] RolesAssignRequest request)
         {
             if (!ModelState.IsValid)
@@ -146,6 +150,8 @@ namespace BTL_KTPM.BackendAPI.Controllers
             return Ok(result);
         }
         [HttpPost("changePassword")]
+        [Authorize]
+
         public async Task<IActionResult> ChangePassword(UpdatePasswordRequest request)
         {
             if (!ModelState.IsValid)
@@ -158,6 +164,7 @@ namespace BTL_KTPM.BackendAPI.Controllers
             return Ok(result);
         }
         [HttpPost("AdminChangePass")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> AdminChangePassword(AdminUpdatePasswordRequest request)
         {
             if (!ModelState.IsValid)

@@ -1,6 +1,7 @@
 ﻿using BanThietBiDiDongDATN.Application.Catalog.Carts;
 using BanThietBiDiDongDATN.Application.Catalog.Carts.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -8,6 +9,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly IManageCart _manageCart;

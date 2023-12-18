@@ -34,7 +34,7 @@
                     console.log(finalTotal1.innerText)
                     voucherPercent.innerText = persent + "%";
                     voucherPrice.innerText = "-" + VND.format(price * (persent / 100));
-                    voucherInput.ariaValueMax = formData.voucher
+                    voucherInput.value = formData.voucher
                 }
                 else {
                     toastr.error(response.mess, "Thất bại", {

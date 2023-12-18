@@ -154,7 +154,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            @String.Format("{0:n0}", @item.OrderDetails.Select(x=>x.Price).Sum()) VNĐ
+                                            @String.Format("{0:n0}", @item.OrderDetails.Select(x=>Convert.ToDouble(x.Price)).Sum()) VNĐ
                                         </td>
                                         <td>
 

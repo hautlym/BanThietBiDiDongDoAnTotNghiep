@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BanThietBiDiDongDATN.Application.Catalog.Vouchers;
 using BanThietBiDiDongDATN.Application.Catalog.Vouchers.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using System.Runtime.InteropServices;
 
 namespace BanThietBiDiDongDATN.BackendAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class VoucherController : ControllerBase
     {
         private readonly BanThietBiDiDongDATNDbContext _context;
@@ -20,12 +23,14 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             var categories = await _manageVoucher.GetAll();
             return Ok(categories);
         }
         [HttpGet("paging")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllPaging([FromQuery] GetVoucherRequest request)
         {
             var categories = await _manageVoucher.GetAlllPaging(request);
@@ -33,6 +38,7 @@ namespace BanThietBiDiDongDATN.BackendAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetbyId(int id)
         {
             var item = await _manageVoucher.GetById(id);

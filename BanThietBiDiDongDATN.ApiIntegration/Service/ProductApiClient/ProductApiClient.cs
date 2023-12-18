@@ -146,7 +146,7 @@ namespace BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient
             var client = _httpClient.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"/api/Product/publicPaging?keyword={request.Keywword}&PageIndex={request.PageIndex}&PageSize={request.PageSize}&CategoryId={request.CategoryId}&BrandId={request.BrandId}&Price={request.Price}&SortBy={request.SortBy}");
+            var response = await client.GetAsync($"/api/Product/publicPaging?Keywword={request.Keywword}&PageIndex={request.PageIndex}&PageSize={request.PageSize}&CategoryId={request.CategoryId}&BrandId={request.BrandId}&Price={request.Price}&SortBy={request.SortBy}");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
