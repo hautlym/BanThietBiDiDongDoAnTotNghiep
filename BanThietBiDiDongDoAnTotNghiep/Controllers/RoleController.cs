@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
     [Authorize(Roles ="Administrator")]
-    public class RoleController : Controller
+    public class RoleController : BaseController
     {
         private readonly IConfiguration _configuration;
         private readonly IRoleApiClient _roleApiClient;

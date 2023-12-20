@@ -92,6 +92,8 @@ builder.Services.Configure<IdentityOptions>(option =>
     option.SignIn.RequireConfirmedEmail = true;            // Cấu hình xác thực địa chỉ email (email phải tồn tại)
     option.SignIn.RequireConfirmedPhoneNumber = false;
 });
+builder.Services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.FromHours(10));
+
 
 //builder.Services.AddControllersWithViews()
 //                .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -108,6 +110,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IManageProduct, ManageProduct>();
 builder.Services.AddTransient<IManageCart, ManagerCart>();
 builder.Services.AddTransient<IManageOrder, ManageOrder>();
+
 builder.Services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
 string issuer = "https://hello.api.com";
 string signingKey = "123456789987654321";
@@ -129,8 +132,10 @@ builder.Services.AddAuthentication(opt =>
                    ValidAudience = issuer,
                    ValidateLifetime = true,
                    ValidateIssuerSigningKey = true,
-                    ClockSkew = TimeSpan.FromDays(3),
-                   IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+                   ClockSkew = TimeSpan.Zero,
+                   RequireExpirationTime = true,
+                   IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
+                   RequireSignedTokens = true,
                };
            });
 

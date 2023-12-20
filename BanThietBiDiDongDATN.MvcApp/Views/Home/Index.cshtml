@@ -25,21 +25,10 @@
                             }
                         }
                     }'>
-            @foreach (var item in Model.BannerProduct)
-            {
-                string url1 = null;
-                var lisstImg = item.ProductImg.OrderBy(x => x.SortOrder);
-
-                @foreach (var img in lisstImg)
-                {
-                    if (img != null)
-                    {
-                        url1 = img.ImagePath;
-                        break;
-                    }
-                }
-                <div class="intro-slide" style="background-image: url(@Configuration["BaseAddress"]/user-content/product/@url1);">
-                    <div class="container intro-content">
+            <div class="intro-slide" style="background-image: url(/Banner3.jpg);"></div>
+                <div class="intro-slide" style="background-image: url(/Banner2.webp);"></div>
+                <div class="intro-slide" style="background-image: url(/Banner1.jpg);">
+                    @* <div class="container intro-content">
                         <div class="row justify-content-end">
                             <div class="col-auto col-sm-7 col-md-6 col-lg-5">
                                 <h3 class="intro-subtitle text-third">Giảm giá</h3><!-- End .h3 intro-subtitle -->
@@ -61,10 +50,10 @@
                                 </a>
                             </div><!-- End .col-lg-11 offset-lg-1 -->
                         </div><!-- End .row -->
-                    </div><!-- End .intro-content -->
+                    </div><!-- End .intro-content --> *@
                 </div>
                 <!-- End .intro-slide -->
-            }
+            
         </div><!-- End .intro-slider owl-carousel owl-simple -->
 
         <span class="slider-loader"></span><!-- End .slider-loader -->
@@ -75,7 +64,7 @@
 
         <div class="cat-blocks-container">
             <div class="row">
-                <div class="col-6 col-sm-4 col-lg-3">
+                <div class="col-6 col-sm-4 col-lg-4">
                     <a asp-action="Index" asp-controller="Product" asp-route-CategoryId="3" class="cat-block">
                         <figure>
                             <span>
@@ -87,7 +76,7 @@
                     </a>
                 </div><!-- End .col-sm-4 col-lg-2 -->
 
-                <div class="col-6 col-sm-4 col-lg-3">
+                <div class="col-6 col-sm-4 col-lg-4">
                     <a asp-action="Index" asp-controller="Product" asp-route-CategoryId="1" class="cat-block">
                         <figure>
                             <span>
@@ -99,19 +88,7 @@
                     </a>
                 </div><!-- End .col-sm-4 col-lg-2 -->
 
-                <div class="col-6 col-sm-4 col-lg-3">
-                    <a asp-action="Index" asp-controller="Product" asp-route-CategoryId="" class="cat-block">
-                        <figure>
-                            <span>
-                                <img src="/clientApp/assets/images/demos/demo-4/cats/5.png" alt="Category image">
-                            </span>
-                        </figure>
-
-                        <h3 class="cat-block-title">Phụ kiện</h3><!-- End .cat-block-title -->
-                    </a>
-                </div><!-- End .col-sm-4 col-lg-2 -->
-
-                <div class="col-6 col-sm-4 col-lg-3">
+                <div class="col-6 col-sm-4 col-lg-4">
                     <a asp-action="Index" asp-controller="Product" asp-route-CategoryId="4"  class="cat-block">
                         <figure>
                             <span>
@@ -150,7 +127,7 @@
                         <a class="nav-link" id="new-phones-link" data-toggle="tab" href="#new-phones-tab" role="tab" aria-controls="new-phones-tab" aria-selected="false">Tai nghe </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="new-phones-link" data-toggle="tab" href="#new-watches-tab" role="tab" aria-controls="new-watches-tab" aria-selected="false">Phụ kiện </a>
+                        <a class="nav-link" id="new-phones-link" data-toggle="tab" href="#new-watches-tab" role="tab" aria-controls="new-watches-tab" aria-selected="false">Khác </a>
                     </li>
                 </ul>
             </div><!-- End .heading-right -->
@@ -211,7 +188,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                 </a>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                    <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
@@ -302,7 +280,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                 </a>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                    <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
@@ -393,7 +372,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                 </a>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                    <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
@@ -484,7 +464,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                 </a>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                    <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
@@ -575,7 +556,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                 </a>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                    <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 
@@ -684,7 +666,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                             </a>
                                             <div class="product-action">
-                                                <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                                <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                             </div><!-- End .product-action -->
                                         </figure><!-- End .product-media -->
 
@@ -774,7 +757,8 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                 </a>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
+                                    <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
+" class="btn-product btn-cart" title="Add to cart" style="    font-size: 15px;">Thêm vào giỏ hàng</a>
                                 </div><!-- End .product-action -->
                             </figure><!-- End .product-media -->
 

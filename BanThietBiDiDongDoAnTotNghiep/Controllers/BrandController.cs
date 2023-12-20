@@ -4,10 +4,12 @@ using BanThietBiDiDongDATN.Application.Catalog.Categories;
 using Microsoft.AspNetCore.Mvc;
 using BanThietBiDiDongDATN.ApiIntegration.Service.BrandApiClient;
 using BanThietBiDiDongDATN.Application.Catalog.Brands.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
-    public class BrandController : Controller
+    [Authorize]
+    public class BrandController : BaseController
     {
         private readonly IBrandApiClient _brandApiClient;
 

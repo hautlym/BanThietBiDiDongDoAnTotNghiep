@@ -1,0 +1,441 @@
+﻿@{
+    ViewData["Title"] = "Thống kê";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script>
+        // Giả sử có dữ liệu doanh thu
+
+        var dates = @Html.Raw(Json.Serialize(ViewBag.DatesByMonth));
+        var amounts = @Html.Raw(Json.Serialize(ViewBag.AmountsByMoth));
+        var numberOrder = @Html.Raw(Json.Serialize(ViewBag.NumberOrder));
+        var labelWeek = @Html.Raw(Json.Serialize(ViewBag.labelWeek));
+        var dataWeek = @Html.Raw(Json.Serialize(ViewBag.DataWeek));
+        var OrderWeek = @Html.Raw(Json.Serialize(ViewBag.OrderWeek));
+        var OrderDay = @Html.Raw(Json.Serialize(ViewBag.OrderDay));
+        var labelDay = @Html.Raw(Json.Serialize(ViewBag.labelDay));
+        var dataDay = @Html.Raw(Json.Serialize(ViewBag.dataDay));
+        var labelPayment = @Html.Raw(Json.Serialize(ViewBag.lablePayment));
+        var dataPayment = @Html.Raw(Json.Serialize(ViewBag.dataPayment));
+        var OrderLabel = @Html.Raw(Json.Serialize(ViewBag.OrderLabel));
+        var OrderData = @Html.Raw(Json.Serialize(ViewBag.OrderData));
+        // Lấy đối tượng canvas và context
+        var ctx = document.getElementById('theo-thang')
+        var ctx1 = document.getElementById('theo-tuan')
+        var ctx2 = document.getElementById('theo-ngay')
+        var ctx3 = document.getElementById('payment')
+        var ctx4 = document.getElementById('numberOrder')
+        // ctx.height = 150;
+        // Tạo đối tượng biểu đồ
+        var revenueChart = new Chart(ctx, {
+            data: {
+
+                labels: dates,
+                datasets: [
+                    {
+                        type: "line",
+                        label: 'Doanh thu trong ngày',
+                        data: amounts,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        order: 2,
+                        fill: false
+                    }
+                    // }, {
+                    //     type: 'bar',
+                    //     label: 'Số đơn trong ngày',
+                    //     data: numberOrder,
+                    //     borderColor: "rgba(117, 113, 249, 0.9)",
+                    //     borderWidth: 3,
+                    //     fill: true,
+                    //     order:1,
+                    //     backgroundColor: "rgba(117, 113, 249, 0.5)"
+                    // }
+
+                ]
+            },
+
+            options: {
+                responsive: true,
+                tooltips: {
+                    mode: 'index',
+                    titleFontSize: 12,
+                    titleFontColor: '#000',
+                    bodyFontColor: '#000',
+                    backgroundColor: '#fff',
+                    titleFontFamily: 'Montserrat',
+                    bodyFontFamily: 'Montserrat',
+                    cornerRadius: 3,
+                    intersect: false,
+                },
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        fontFamily: 'Montserrat',
+                    },
+                },
+                scales: {
+
+                    xAxes: [{
+                        position: 'bottom',
+                        display: true,
+                        beginAtZero: true,
+                        gridLines: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Ngày trong tháng'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        beginAtZero: true,
+                        gridLines: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Doanh thu (VNĐ)'
+                        }
+                    }]
+                },
+
+            }
+        });
+        var weekChart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: labelWeek,
+                datasets: [
+                    {
+                        label: "Doanh thu trong ngày",
+                        data: dataWeek,
+                        borderColor: "rgba(117, 113, 249, 0.9)",
+                        borderWidth: "0",
+                        backgroundColor: "rgba(117, 113, 249, 0.5)"
+                    },
+                    {
+                        label: "Số đơn ngày",
+                        data: OrderWeek,
+                        borderColor: "rgba(144,	104,	190,0.9)",
+                        borderWidth: "0",
+                        backgroundColor: "rgba(144,	104,	190,0.7)"
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                tooltips: {
+                    mode: 'index',
+                    titleFontSize: 12,
+                    titleFontColor: '#000',
+                    bodyFontColor: '#000',
+                    backgroundColor: '#fff',
+                    titleFontFamily: 'Montserrat',
+                    bodyFontFamily: 'Montserrat',
+                    cornerRadius: 3,
+                    intersect: false,
+                },
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        fontFamily: 'Montserrat',
+                    },
+                },
+                scales: {
+                    xAxes: [{
+                        position: 'bottom',
+                        display: true,
+                        beginAtZero: true,
+                        gridLines: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Các thứ trong tuần'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        beginAtZero: true,
+                        gridLines: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Doanh thu (VNĐ) /  số đơn'
+                        }
+                    }]
+                }
+            }
+        });
+        var revenueDay = new Chart(ctx2, {
+            data: {
+
+                labels: labelDay,
+                datasets: [
+                    {
+                        type: "line",
+                        label: 'Doanh thu trong ngày',
+                        data: dataDay,
+                        borderColor: '#7571F9',
+                        borderWidth: 2,
+                        order: 2,
+                        fill: false
+                    }
+                    // }, {
+                    //     type: 'bar',
+                    //     label: 'Số đơn trong ngày',
+                    //     data: numberOrder,
+                    //     borderColor: "rgba(117, 113, 249, 0.9)",
+                    //     borderWidth: 3,
+                    //     fill: true,
+                    //     order:1,
+                    //     backgroundColor: "rgba(117, 113, 249, 0.5)"
+                    // }
+
+                ]
+            },
+
+            options: {
+                responsive: true,
+                tooltips: {
+                    mode: 'index',
+                    titleFontSize: 12,
+                    titleFontColor: '#000',
+                    bodyFontColor: '#000',
+                    backgroundColor: '#fff',
+                    titleFontFamily: 'Montserrat',
+                    bodyFontFamily: 'Montserrat',
+                    cornerRadius: 3,
+                    intersect: false,
+                },
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        fontFamily: 'Montserrat',
+                    },
+                },
+                scales: {
+
+                    xAxes: [{
+                        position: 'bottom',
+                        display: true,
+                        beginAtZero: true,
+                        gridLines: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Các giờ trong ngày'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        beginAtZero: true,
+                        gridLines: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Doanh thu (VNĐ)'
+                        }
+                    }]
+                },
+
+            }
+        });
+        var payment = new Chart(ctx3, {
+            type: 'pie',
+            data: {
+                datasets: [{
+                    data: dataPayment,
+                    backgroundColor: [
+                        "rgba(117, 113, 249,0.9)",
+                        "rgba(117, 113, 249,0.7)",
+                        "rgba(117, 113, 249,0.5)",
+                        "rgba(144,	104,190,0.7)"
+                    ],
+                    hoverBackgroundColor: [
+                        "rgba(117, 113, 249,0.9)",
+                        "rgba(117, 113, 249,0.7)",
+                        "rgba(117, 113, 249,0.5)",
+                        "rgba(144,	104,	190,0.7)"
+                    ]
+
+                }],
+                labels: labelPayment
+            },
+            options: {
+                responsive: true
+            }
+        });
+        var orderChart = new Chart(ctx4, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: OrderData,
+                    backgroundColor: [
+                        "#7571f9",
+                        "#ffc480",
+                        "#0e4cfd",
+                        "#6fd96f",
+                        "#ff5e5e"
+                    ],
+                }],
+                labels: OrderLabel
+            },
+            options: {
+                responsive: true,
+            }
+        });
+    </script>
+}
+
+<!-- row -->
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <h4 class="mt-4">@ViewData["Title"]</h4>
+                <ol class="breadcrumb bg-white">
+                    <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+                    <li class="breadcrumb-item active text-dark" aria-current="page">@ViewData["Title"]</li>
+                </ol>
+            </nav>
+        </div>
+        <!-- /# column -->
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">Doanh thu trong tháng</h4>
+                    <canvas id="theo-thang" width="433" height="300" style="display: block; height: 104px; width: 347px;" class="chartjs-render-monitor"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">Doanh thu trong tuần</h4>
+                    <canvas id="theo-tuan" width="433" height="300" style="display: block; height: 104px; width: 347px;" class="chartjs-render-monitor"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">Phương thức thanh toán</h4>
+                    <canvas id="payment" width="433" height="300" style="display: block; height: 104px; width: 347px;" class="chartjs-render-monitor"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">Doanh thu trong ngày</h4>
+                    <canvas id="theo-ngay" width="433" height="300" style="display: block; height: 104px; width: 347px;" class="chartjs-render-monitor"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">5 sản phẩm bán chạy nhất</h4>
+                    <div class="table-responsive" style="min-height:370px;">
+                        <table class="table table-bordered" >
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th style="width:30%">Số lượng bán ra</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var i = 1;
+                                }
+                                @foreach (var item in (Dictionary<string, int>)ViewBag.TopProduct)
+                                {
+                                    <tr>
+                                        <td>
+                                            @i
+                                            @{
+                                                i++;
+                                            }
+                                        </td>
+                                        <td>@item.Key</td>
+                                        <td style="width:30%" class="color-primary">@item.Value</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">Số đơn </h4>
+                    <canvas id="numberOrder" width="433" height="300" style="display: block; height: 104px; width: 347px;" class="chartjs-render-monitor"></canvas>
+                </div>
+            </div>
+        </div>
+
+       @*  <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Index">
+                        <div class="row align-items-center">
+                            Từ ngày
+                            <div class="col-md-3">
+                                <input type="date" name="begin" class="form-control" />
+                            </div>
+                            đến
+                            <div class="col-md-3">
+                                <input type="date" name="end" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <select asp-items="ViewBag.Product" name="productId" class="form-control select2 ">
+                                    <option value="0">
+                                        --Chọn sản phẩm--
+                                    </option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thống kê</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="chartjs-size-monitor" style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+                    <h4 class="card-title">Doanh thu</h4>
+                    <canvas id="doanhthutheotime" width="433" height="300" style="display: block; height: 104px; width: 347px;" class="chartjs-render-monitor"></canvas>
+                </div>
+            </div>
+        </div> *@
+
+    </div>
+</div>
+<!-- #/ container -->

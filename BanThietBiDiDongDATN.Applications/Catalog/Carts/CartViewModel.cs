@@ -24,5 +24,6 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
         public string? Phone { get; set; }
         public string? totalPrice { get; set; }
 
+        public int ProductQuantity { get; set; }
     }
 }

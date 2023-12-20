@@ -27,6 +27,27 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Commom
 
             return formattedTime;
         }
-        
+        public static string ChuyenDoiThuSangChu(DayOfWeek thu)
+        {
+            switch (thu)
+            {
+                case DayOfWeek.Sunday:
+                    return "Chủ Nhật";
+                case DayOfWeek.Monday:
+                    return "Thứ Hai";
+                case DayOfWeek.Tuesday:
+                    return "Thứ Ba";
+                case DayOfWeek.Wednesday:
+                    return "Thứ Tư";
+                case DayOfWeek.Thursday:
+                    return "Thứ Năm";
+                case DayOfWeek.Friday:
+                    return "Thứ Sáu";
+                case DayOfWeek.Saturday:
+                    return "Thứ Bảy";
+                default:
+                    return string.Empty;
+            }
+        }
     }
 }

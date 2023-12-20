@@ -151,7 +151,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             if (result.IsSuccessed)
             {
                 TempData["success"] = "Đổi trạng thái thành công";
-                return RedirectToAction("CheckOutView", "Cart");
+                return RedirectToAction("CheckOutDetail", "Cart");
             }
             else
             {
@@ -163,7 +163,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                 {
                     TempData["failed"] = "Đổi trạng thái không thành công";
                 }
-                return RedirectToAction("CheckOutView", "Cart");
+                return RedirectToAction("CheckOutDetail", "Cart");
             }
         }
         [HttpPost]
@@ -177,7 +177,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
 
             return RedirectToAction("CheckOutDetail", "Cart");
         }
-        [HttpPost]
+  
         public async Task<IActionResult> AddToCart(int ProductId, int Quantity, int OptionId)
         {
             if (Quantity == 0)
@@ -221,10 +221,10 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var kq = await _cartApiClient.Delete(CartId);
             if (kq)
             {
-                return RedirectToAction("CheckOutDetail", "Cart");
+                return RedirectToAction("Index", "Cart");
             }
             ModelState.AddModelError("", "Thêm sản phẩm thất bại");
-            return RedirectToAction("CheckOutDetail", "Cart");
+            return RedirectToAction("Index", "Cart");
         }
         [HttpGet]
         public async Task<IActionResult> ApplyVoucher(string voucherCode)

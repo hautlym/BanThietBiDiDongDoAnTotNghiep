@@ -120,7 +120,7 @@
 " src="@Configuration["BaseAddress"]/user-content/product/@url1" alt="Product image" class="product-image">
                                                     </a>
                                                     <div class="product-action">
-                                                        <a asp-action="Index" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1"asp-route-OptionId="@item.Options.FirstOrDefault().id
+                                                        <a asp-action="AddToCart" asp-controller="Cart" asp-route-ProductId="@item.Id" asp-route-Quantity="1" asp-route-OptionId="@item.Options.FirstOrDefault().id
 " class="btn-product btn-cart"><span>Thêm vào giỏ hàng</span></a>
                                                     </div><!-- End .product-action -->
                                                 </figure><!-- End .product-media -->

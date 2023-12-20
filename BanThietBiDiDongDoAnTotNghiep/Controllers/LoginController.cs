@@ -25,7 +25,8 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            //await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return View();
         }
         [HttpPost]
@@ -52,7 +53,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
             var authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(3),
-                IsPersistent = false
+                IsPersistent = true
             };
             HttpContext.Session.SetString("Token", token.ResultObj);
             await HttpContext.SignInAsync(
@@ -73,6 +74,9 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
             validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
 
             ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+            var identity = principal.Identity as ClaimsIdentity;
+            if(identity != null)
+                identity.AddClaim(new Claim("access_token", jwtToken));
 
             return principal;
         }

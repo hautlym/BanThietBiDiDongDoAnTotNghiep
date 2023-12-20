@@ -9,6 +9,7 @@ using BanThietBiDiDongDATN.Application.Catalog.Commom;
 using BanThietBiDiDongDATN.MvcApp.Models;
 using BTL_KTPM.ApiIntegration.Service.CartApiClient;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,16 +31,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/User/Forbidden/";
+        options.AccessDeniedPath = "/Home/Index/";
     });
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromDays(30);
+    options.IdleTimeout = TimeSpan.FromDays(3);
 });
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.ExpireTimeSpan = TimeSpan.FromDays(3); 
 });
+builder.Services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.FromHours(10));
 if (builder.Environment.IsDevelopment())
 {
     mvcBuilder.AddRazorRuntimeCompilation();
@@ -55,12 +57,24 @@ if (!app.Environment.IsDevelopment())
 app.UseMiddleware<StatusCodeRedirectMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseAuthentication();
 app.UseRouting();
+app.UseSession();
+app.UseAuthentication();
 
 app.UseAuthorization();
-app.UseSession();
 
+app.Use((context, next) =>
+{
+    if (!context.User.Identity?.IsAuthenticated ?? false)
+        return next();
+
+    var accessTokenClaim = context.User.Claims.FirstOrDefault(claim => claim.Type == "access_token");
+    if (accessTokenClaim == null)
+        return next();
+
+    context.Session.SetString("Token", accessTokenClaim.Value);
+    return next();
+});
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

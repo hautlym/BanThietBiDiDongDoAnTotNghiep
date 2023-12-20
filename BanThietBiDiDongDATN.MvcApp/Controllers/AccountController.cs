@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BanThietBiDiDongDATN.MvcApp.Controllers
 {
@@ -49,8 +50,8 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var userPrincipal = this.ValidateToken(token.ResultObj);
             var authProperties = new AuthenticationProperties
             {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(3),
-                IsPersistent = false
+                ExpiresUtc = DateTime.Today.AddDays(3),
+                IsPersistent = true
             };
             HttpContext.Session.SetString("Token", token.ResultObj);
             await HttpContext.SignInAsync(
@@ -95,6 +96,9 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
 
             ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+            var identity = principal.Identity as ClaimsIdentity;
+            if (identity != null)
+                identity.AddClaim(new Claim("access_token", jwtToken));
 
             return principal;
         }

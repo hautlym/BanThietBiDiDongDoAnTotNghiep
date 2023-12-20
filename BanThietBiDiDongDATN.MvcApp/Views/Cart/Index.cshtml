@@ -100,25 +100,27 @@
     {
         @foreach (var item in Model)
         {
-            var text = $"[{@item.id},{@item.ProductPrice},{@item.Quantity}],";
+            var text = $"[{@item.id},{@item.ProductPrice},{@item.Quantity},{@item.ProductQuantity}],";
             @Html.Raw(text)
         }
 
     }
                                  ];
         for (var i = 0; i < listOption.length; i++) {
-            UpdatePriceCart(listOption[i][0], listOption[i][1])
+            UpdatePriceCart(listOption[i][0], listOption[i][1], listOption[i][3])
         }
     }
 
-    function UpdatePriceCart(id, price, event) {
-
+    function UpdatePriceCart(id, price,quantity) {
+        console.log(quantity)
         var quantityCart = document.querySelector(".quantity-" + id)
         var totalItem = document.querySelector(".total-col.total-item-" + id)
         var ListTotalItem = document.getElementsByClassName("total-col")
         var totalCart = document.querySelector(".temp-total")
         var finalTotal = document.querySelector(".final-total")
         var newPirce = quantityCart.value * price;
+        quantityCart.max = quantity;
+        console.log("max="+quantityCart.max)
         var totalPrice = 0;
         $.ajax({
             url: '/Cart/ChangeQuantity',  // Đường dẫn API hoặc endpoint để xử lý cập nhật số lượng
@@ -137,9 +139,11 @@
         for (var i = 0; i < ListTotalItem.length; i++) {
             var price = parseFloat(ListTotalItem[i].innerText.replace(/[^0-9]/g, ''))
             totalPrice += price;
+            
         }
         totalCart.innerText = VND.format(totalPrice)
         finalTotal.innerText = VND.format(totalPrice)
+       
     }
 
 </script>
@@ -189,7 +193,7 @@
                                                         </a>
                                                     </figure>
                                                     <h3 class="product-title">
-                                                        <a asp-action="Detail" asp-controller="Product" asp-route-id="@item.ProductId">IPhone 15 đen mới</a>
+                                                        <a asp-action="Detail" asp-controller="Product" asp-route-id="@item.ProductId">@item.ProductNane</a>
                                                     </h3><!-- End .product-title -->
                                                 </div><!-- End .product -->
                                             </td>

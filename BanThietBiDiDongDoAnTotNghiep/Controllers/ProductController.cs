@@ -2,13 +2,14 @@
 using BanThietBiDiDongDATN.ApiIntegration.Service.CategoryApiClient;
 using BanThietBiDiDongDATN.ApiIntegration.Service.ProductApiClient;
 using BanThietBiDiDongDATN.Application.Catalog.Products.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
-
-    public class ProductController : Controller
+    [Authorize]
+    public class ProductController : BaseController
     {
         private readonly IProductApiClient _productApiClient;
         private readonly IConfiguration _configuration;

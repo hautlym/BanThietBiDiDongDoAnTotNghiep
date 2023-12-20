@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
-    //[Authorize]
-    public class ManageAccount : Controller
+    [Authorize]
+    public class ManageAccount : BaseController
     {
         private readonly IUserApiClient _userApiClient;
         private readonly IConfiguration _configuration;

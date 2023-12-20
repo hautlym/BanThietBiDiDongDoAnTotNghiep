@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
     [Authorize(Roles = "Administrator")]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly IUserApiClient _userApiClient;
         private readonly IConfiguration _configuration;

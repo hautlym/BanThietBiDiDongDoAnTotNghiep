@@ -6,13 +6,15 @@ using BanThietBiDiDongDATN.Application.Catalog.Carts;
 using BanThietBiDiDongDATN.Application.Catalog.Orders.Dtos;
 using BanThietBiDiDongDATN.Application.Catalog.System.Dtos;
 using BanThietBiDiDongDATN.Data.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
-    public class OrderController : Controller
+    [Authorize]
+    public class OrderController : BaseController
     {
         private readonly IOrderService _orderApiClient;
         private readonly IProductApiClient _productApiClient;

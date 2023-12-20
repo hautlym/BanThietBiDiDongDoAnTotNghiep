@@ -28,6 +28,14 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                 {
                     return -1;
                 }
+                var checkEsxit = _context.carts.Where(x => x.ProductId == request.ProductId && request.OptionId == x.OptionId).FirstOrDefault();
+                if(checkEsxit!=null)
+                {
+                    checkEsxit.Quantity += request.Quantity;
+                    _context.carts.Update(checkEsxit);
+                    await _context.SaveChangesAsync();
+                    return 1;
+                }
                 var option = product.productOptions.Where(x => x.Id == request.OptionId).FirstOrDefault();
                 var cart = new Cart()
                 {
@@ -73,6 +81,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                            optionSize = o.SizeOption,
                            ProductPrice = o.OptionPrice,
                            totalPrice = c.Price,
+                           productQuantity = o.Quantity,
                            Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
                        };
 
@@ -90,6 +99,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                 ProductId = x.ProductId,
                 OptionColor = x.optionColor,
                 OptionSize = x.optionSize,
+                ProductQuantity = x.productQuantity 
             }).ToListAsync();
             return data;
         }
@@ -113,6 +123,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                            optionColor = o.ColorOption,
                            optionSize = o.SizeOption,
                            ProductPrice = o.OptionPrice,
+                           productQuantity = o.Quantity,
                            Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
                        };
 
@@ -129,7 +140,8 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                 totalPrice=x.totalPrice.ToString(),
                 OptionColor = x.optionColor,
                 OptionSize = x.optionSize,
-                ProductId = x.ProductId
+                ProductId = x.ProductId,
+                ProductQuantity = x.productQuantity,
             }).ToListAsync();
             return data;
         }
@@ -153,6 +165,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                            optionSize = o.SizeOption,
                            ProductPrice = o.OptionPrice,
                            totalPrice = c.Price,
+                           productQuantity = o.Quantity,
                            Img = p.productImgs.Count > 0 ? p.productImgs[0].ImagePath : "",
                        };
 
@@ -169,7 +182,8 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Carts
                 totalPrice = x.totalPrice.ToString(),
                 OptionColor = x.optionColor,
                 OptionSize = x.optionSize,
-                ProductId = x.ProductId
+                ProductId = x.ProductId,
+                ProductQuantity= x.productQuantity
             }).FirstOrDefaultAsync();
             return data;
         }

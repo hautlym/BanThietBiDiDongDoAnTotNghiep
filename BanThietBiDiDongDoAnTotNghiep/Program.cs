@@ -34,6 +34,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 
 });
+builder.Services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.FromHours(10));
 builder.Services.AddTransient<ICategoriesApiClient, CategoriesApiClient>();
 builder.Services.AddTransient<IUserApiClient, UserApiClient>();
 builder.Services.AddTransient<IRoleApiClient, RoleApiClient>();
@@ -58,14 +59,26 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseMiddleware<StatusCodeRedirectMiddleware>();
-app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession();
-app.UseAuthorization();
 
+app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
+app.Use((context, next) =>
+{
+    if (!context.User.Identity?.IsAuthenticated ?? false)
+        return next();
+
+    var accessTokenClaim = context.User.Claims.FirstOrDefault(claim => claim.Type == "access_token");
+    if (accessTokenClaim == null)
+        return next();
+
+    context.Session.SetString("Token", accessTokenClaim.Value);
+    return next();
+});
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

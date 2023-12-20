@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
     [Authorize]
-    public class CategoryController : Controller
+    public class CategoryController : BaseController
     {
         private readonly ICategoriesApiClient _brandApiClient;
 

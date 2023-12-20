@@ -1,11 +1,13 @@
 ﻿
 using BanThietBiDiDongDATN.ApiIntegration.Service.VoucherApiClient;
 using BanThietBiDiDongDATN.Application.Catalog.Vouchers.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BanThietBiDiDongDATN.Admin.Controllers
 {
-    public class VoucherController : Controller
+    [Authorize]
+    public class VoucherController : BaseController
     {
         private readonly IVoucherApiClient _voucherApiClient;
 
