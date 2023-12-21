@@ -7,7 +7,54 @@
     ViewData["Title"] = "CheckOutView";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+@section Scripts{
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]', "Thành công", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
+    @if (TempData["failed"] != null)
+    {
+        <script type="text/javascript">
+            toastr.error('@TempData["failed"]', "Thất bại", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
+}
 <script>
 
     function useVoucher(event) {
@@ -114,6 +161,7 @@
                     </form>
                 </div><!-- End .checkout-discount -->
                 <form asp-action="CheckOut" asp-controller="Cart" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
                     <div class="row">
                         <div class="col-lg-7">
                             <h2 class="checkout-title">Thông tin thanh toán</h2><!-- End .checkout-title -->
@@ -134,7 +182,7 @@
 
                                 <div class="col-sm-6">
                                     <label>Email *</label>
-                                    <input type="text" name="ShipEmail" class="form-control" required>
+                                    <input type="email" name="ShipEmail" class="form-control" required>
                                 </div><!-- End .col-sm-6 -->
                             </div><!-- End .row -->
 
@@ -227,7 +275,7 @@
                                             <td class="voucher-persent">0</td>
                                         </tr><!-- End .summary-subtotal -->
                                         <tr>
-                                            <td>Giảm giá:</td>
+                                            <td>Số tiền giảm:</td>
                                             <td class="voucher-price format-price">0</td>
                                         </tr><!-- End .summary-subtotal -->
                                         <tr class="summary-total">

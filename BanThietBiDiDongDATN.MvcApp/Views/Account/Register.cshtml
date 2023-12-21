@@ -24,7 +24,9 @@
 <div class="regeiter-content" style="margin: 0 100px ">
     <div class="title-login">ĐĂNG KÝ TÀI KHOẢN</div>
     <div class="regeiter-form row justify-content-center">
+        <div asp-validation-summary="All" class="text-danger"></div>
         <form class="form-valide d-flex flex-wrap" asp-action="Register" enctype="multipart/form-data" method="post" style="min-width:900px;">
+           
             <!--Avatar-->
             <div class="col-lg-3 col-md-4 col-12">
                 <div class="d-flex justify-content-center mb-2">
@@ -96,7 +98,7 @@
                         Ngày sinh <span class="text-danger">*</span>
                     </label>
                     <div class="col-lg-7">
-                        <input type="date" name="Dob" class="form-control">
+                        <input type="date" name="Dob" asp-for="Dob" class="form-control">
                     </div>
                 </div>
                 <div class="form-group row is-invalid">

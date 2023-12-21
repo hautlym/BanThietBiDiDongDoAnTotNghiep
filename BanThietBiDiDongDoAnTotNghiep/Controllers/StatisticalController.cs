@@ -193,6 +193,7 @@ namespace BanThietBiDiDongDATN.Admin.Controllers
             #endregion
             #region topProduct 
             var topProduct = order
+                .Where(x=>x.status!= OrderStatus.Cancel)
                 .Select(x => x.OrderDetails).ToList().SelectMany(x=>x)
               .GroupBy(s => s.ProductId)
               .Select(group => new

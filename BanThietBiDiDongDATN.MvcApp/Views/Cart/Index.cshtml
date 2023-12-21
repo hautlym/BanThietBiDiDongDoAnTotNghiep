@@ -6,29 +6,53 @@
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-@if (TempData["failed"] != null)
-{
-    <script type="text/javascript">
-        toastr.error('@TempData["failed"]', "Thất bại", {
-            timeOut: 5e3,
-            closeButton: !0,
-            debug: !1,
-            newestOnTop: !0,
-            progressBar: !0,
-            positionClass: "toast-top-right",
-            preventDuplicates: !0,
-            onclick: null,
-            showDuration: "300",
-            hideDuration: "1000",
-            extendedTimeOut: "1000",
-            showEasing: "swing",
-            hideEasing: "linear",
-            showMethod: "fadeIn",
-            hideMethod: "fadeOut",
-            tapToDismiss: !1,
-        })
-    </script>
+@section Scripts{
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]', "Thành công", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
+    @if (TempData["failed"] != null)
+    {
+        <script type="text/javascript">
+            toastr.error('@TempData["failed"]', "Thất bại", {
+                timeOut: 5e3,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                positionClass: "toast-top-right",
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1,
+            })
+        </script>
+    }
 }
 <script>
    

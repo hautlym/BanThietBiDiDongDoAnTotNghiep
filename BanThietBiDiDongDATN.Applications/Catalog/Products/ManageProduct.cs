@@ -517,6 +517,7 @@ namespace BanThietBiDiDongDATN.Application.Catalog.Products
             var query = from product in _context.products
                         join c in _context.Categories on product.CategoryId equals c.Id
                         join p in _context.brands on product.BrandId equals p.id
+                        where product.isActived == true
                         select new { product, c, p };
             var test = _context.products.ToList();
             if (request.BrandId != null && request.BrandId != 0)

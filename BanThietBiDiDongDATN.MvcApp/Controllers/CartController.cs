@@ -49,6 +49,11 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
         {
             var UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var Cart = await _cartApiClient.GetAllByUserId(Guid.Parse(UserId));
+            if(Cart == null)
+            {
+                TempData["failed"] = "Vui lòng chọn sản phẩm";
+                return RedirectToAction("Index", "Cart");
+            }
             return View(Cart);
         }
         [HttpPost]
@@ -60,6 +65,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var Cart = await _cartApiClient.GetAllByUserId(Guid.Parse(UserId));
             if (Cart == null || Cart.Count < 0)
             {
+                TempData["failed"] = "Vui lòng chọn sản phẩm";
                 return RedirectToAction("Index", "Cart");
             }
             var ListVoucher = await _voucherApiClient.GetAll();
@@ -76,6 +82,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                 }
                 else
                 {
+                    TempData["failed"] = result.Message;
                     return RedirectToAction("CheckOutView", "Cart");
                 }
             }
@@ -122,16 +129,19 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                     }
                     else
                     {
+                        TempData["failed"] = "Thanh toán không thành công";
                         return RedirectToAction("CheckOutView", "Cart");
                     }
                 }
                 else
                 {
+                    TempData["failed"] = "Thanh toán không thành công";
                     return RedirectToAction("CheckOutView", "Cart");
                 }
             }
             else
             {
+                TempData["failed"] = "Thanh toán không thành công";
                 return RedirectToAction("CheckOutView", "Cart");
             }
         }
@@ -172,9 +182,10 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var kq = await _orderApiClient.Delete(OrderId);
             if (kq.IsSuccessed)
             {
+                TempData["success"] = "Xóa thành công";
                 return RedirectToAction("CheckOutDetail", "Cart");
             }
-
+            TempData["failed"] = "Xóa không thành công";
             return RedirectToAction("CheckOutDetail", "Cart");
         }
   
@@ -195,9 +206,10 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var kq = await _cartApiClient.CreateCart(Cart);
             if (kq.IsSuccessed)
             {
+                TempData["success"] = "Thêm sản phẩm thành công";
                 return RedirectToAction("Index", "Cart");
             }
-            ModelState.AddModelError("", "Thêm sản phẩm thất bại");
+            TempData["failed"] = "Thêm sản phẩm thất bại";
             return View();
         }
         [HttpPost]
@@ -221,9 +233,10 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
             var kq = await _cartApiClient.Delete(CartId);
             if (kq)
             {
+                TempData["success"] = "Xóa sản phẩm thành công";
                 return RedirectToAction("Index", "Cart");
             }
-            ModelState.AddModelError("", "Thêm sản phẩm thất bại");
+            TempData["failed"] = "Xóa sản phẩm thất bại";
             return RedirectToAction("Index", "Cart");
         }
         [HttpGet]
