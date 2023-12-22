@@ -47,7 +47,7 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                 {
                     ProductId = group.Key,
                     TotalQuantity = group.Sum(order => order.Quantity)
-                }).OrderByDescending(result => result.TotalQuantity).Take(5).ToList();
+                }).OrderByDescending(result => result.TotalQuantity).Take(6).ToList();
                 foreach (var item in list)
                 {
                     var pr = ListProduct.Where(x => x.Id == item.ProductId).FirstOrDefault();

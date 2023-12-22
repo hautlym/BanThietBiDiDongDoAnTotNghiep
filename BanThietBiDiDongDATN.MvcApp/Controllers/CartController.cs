@@ -17,7 +17,7 @@ using System.Security.Claims;
 namespace BanThietBiDiDongDATN.MvcApp.Controllers
 {
     [Authorize]
-    public class CartController : Controller
+    public class CartController : BaseController
     {
         private readonly ICartApiClient _cartApiClient;
         private readonly IOrderService _orderApiClient;

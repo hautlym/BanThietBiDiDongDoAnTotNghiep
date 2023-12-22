@@ -55,8 +55,9 @@
     }
 }
 <script>
-   
+
     function useVoucher(event) {
+
         event.preventDefault();
         var formData = {
             voucher: $("input[name='voucherCode']").val(),
@@ -101,15 +102,15 @@
                 }
             },
             error: function (error) {
-               
-                
+
+
             }
         });
-        
+
     }
 </script>
 <script>
-    
+
     window.addEventListener('load', function () {
         RenderCode();
     });
@@ -129,45 +130,51 @@
         }
 
     }
-                                 ];
+                                     ];
         for (var i = 0; i < listOption.length; i++) {
             UpdatePriceCart(listOption[i][0], listOption[i][1], listOption[i][3])
         }
     }
 
-    function UpdatePriceCart(id, price,quantity) {
+    function UpdatePriceCart(id, price, quantity) {
         console.log(quantity)
         var quantityCart = document.querySelector(".quantity-" + id)
         var totalItem = document.querySelector(".total-col.total-item-" + id)
         var ListTotalItem = document.getElementsByClassName("total-col")
         var totalCart = document.querySelector(".temp-total")
         var finalTotal = document.querySelector(".final-total")
-        var newPirce = quantityCart.value * price;
-        quantityCart.max = quantity;
-        console.log("max="+quantityCart.max)
-        var totalPrice = 0;
-        $.ajax({
-            url: '/Cart/ChangeQuantity',  // Đường dẫn API hoặc endpoint để xử lý cập nhật số lượng
-            type: 'POST',
-            data: { cartId: id, Quantity: quantityCart.value },
-            success: function (response) {
-                console.log("thành công")
-            },
-            error: function (error) {
-                console.error('Error updating quantity:', error);
+        if (quantityCart.value == quantity) {
+
+            return;
+        } else {
+            var newPirce = quantityCart.value * price;
+            quantityCart.max = quantity;
+            console.log("max=" + quantityCart.max)
+            var totalPrice = 0;
+            $.ajax({
+                url: '/Cart/ChangeQuantity',  // Đường dẫn API hoặc endpoint để xử lý cập nhật số lượng
+                type: 'POST',
+                data: { cartId: id, Quantity: quantityCart.value },
+                success: function (response) {
+                    console.log("thành công")
+                },
+                error: function (error) {
+                    console.error('Error updating quantity:', error);
+                }
+            });
+            console.log(ListTotalItem)
+
+            totalItem.innerText = VND.format(newPirce)
+            for (var i = 0; i < ListTotalItem.length; i++) {
+                var price = parseFloat(ListTotalItem[i].innerText.replace(/[^0-9]/g, ''))
+                totalPrice += price;
+
             }
-        });
-        console.log(ListTotalItem)
-        
-        totalItem.innerText = VND.format(newPirce)
-        for (var i = 0; i < ListTotalItem.length; i++) {
-            var price = parseFloat(ListTotalItem[i].innerText.replace(/[^0-9]/g, ''))
-            totalPrice += price;
-            
+            totalCart.innerText = VND.format(totalPrice)
+            finalTotal.innerText = VND.format(totalPrice)
         }
-        totalCart.innerText = VND.format(totalPrice)
-        finalTotal.innerText = VND.format(totalPrice)
-       
+        
+
     }
 
 </script>
@@ -185,7 +192,7 @@
             </ol>
         </div><!-- End .container -->
     </nav><!-- End .breadcrumb-nav -->
-    
+
     <div class="page-content">
         <div class="cart">
             <div class="container">
@@ -252,9 +259,9 @@
                                             </td>
                                             <td class="total-col total-item-@item.id">@String.Format("{0:n0}", @item.totalPrice)</td>
                                             <td class="remove-col">
-                                                <form asp-action="DeleteToCart" asp-controller="Cart" method="post" >
+                                                <form asp-action="DeleteToCart" asp-controller="Cart" method="post">
                                                     <input type="hidden" name="CartId" value="@item.id">
-                                                    <button class="btn-remove" type="submit" ><i class="icon-close"></i></button>
+                                                    <button class="btn-remove" type="submit"><i class="icon-close"></i></button>
                                                 </form>
                                             </td>
                                         </tr>

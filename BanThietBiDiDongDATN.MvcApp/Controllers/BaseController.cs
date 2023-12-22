@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace BanThietBiDiDongDATN.Admin.Controllers
+namespace BanThietBiDiDongDATN.MvcApp.Controllers
 {
     public class BaseController : Controller
     {

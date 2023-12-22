@@ -47,7 +47,14 @@ namespace BanThietBiDiDongDATN.MvcApp.Controllers
                 ModelState.AddModelError("", "Sai tài khoản hoặc mẩt khẩu");
                 return View();
             }
+            
             var userPrincipal = this.ValidateToken(token.ResultObj);
+            var kq = userPrincipal.FindFirst(ClaimTypes.Role).Value;
+            if (!kq.Contains("Customer"))
+            {
+                ModelState.AddModelError("", "Tài khoản không tồn tại");
+                return View();
+            }
             var authProperties = new AuthenticationProperties
             {
                 ExpiresUtc = DateTime.Today.AddDays(3),
